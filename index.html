@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Boss-App – Dein KI-Co-Pilot</title>
+  <script src="https://tailwindcss.com"></script>
+  <style>
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.25; transform: scale(0.9); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+    .star {
+      position: absolute;
+      background: white;
+      border-radius: 9999px;
+      animation: twinkle 3.5s infinite ease-in-out;
+    }
+    .rain-overlay {
+      background-image: repeating-linear-gradient(105deg, transparent, transparent 16px, rgba(186, 230, 253, 0.35) 17px, transparent 18px);
+      animation: rainFall 0.6s linear infinite;
+    }
+    @keyframes rainFall {
+      from { background-position: 0 0; }
+      to { background-position: -20px 60px; }
+    }
+  </style>
+</head>
+<body id="app-body" class="min-h-screen text-white transition-all duration-1000 relative overflow-x-hidden bg-gradient-to-b from-[#38bdf8] via-[#1e3a8a] to-[#070e1d]">
+
+  <div id="sky-effects" class="pointer-events-none absolute inset-x-0 top-0 h-80 overflow-hidden z-0">
+    <div id="sky-day" class="hidden">
+      <div class="absolute -top-16 right-12 h-72 w-72 rounded-full bg-amber-200/45 blur-3xl"></div>
+      <div class="absolute top-6 right-24 h-24 w-24 rounded-full bg-yellow-100/80 blur-xl"></div>
+      <div class="absolute top-14 left-1/4 h-16 w-80 rounded-full bg-white/25 blur-2xl"></div>
+    </div>
+    <div id="sky-night" class="hidden">
+      <div class="star h-1 w-1 top-8 left-[12%]" style="animation-delay: 0s;"></div>
+      <div class="star h-1.5 w-1.5 top-14 left-[28%]" style="animation-delay: 0.8s;"></div>
+      <div class="star h-1 w-1 top-6 left-[45%]" style="animation-delay: 1.5s;"></div>
+      <div class="star h-1.5 w-1.5 top-20 left-[63%]" style="animation-delay: 0.4s;"></div>
+      <div class="star h-1 w-1 top-10 left-[79%]" style="animation-delay: 2.1s;"></div>
+      <div class="star h-1.5 w-1.5 top-24 left-[88%]" style="animation-delay: 1.1s;"></div>
+    </div>
+    <div id="sky-rain" class="hidden">
+      <div class="absolute inset-x-0 top-0 h-48 bg-slate-900/50 blur-2xl"></div>
+      <div class="rain-overlay absolute inset-0 opacity-60"></div>
+    </div>
+  </div>
+
+  <div class="relative z-10 flex min-h-screen max-w-7xl mx-auto">
+    <aside class="hidden md:flex w-64 flex-col justify-between border-r border-white/10 bg-[#070e1d]/65 backdrop-blur-xl p-6">
+      <div>
+        <div class="flex items-center gap-3 mb-10">
+          <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-500/25 border border-blue-400/40 text-blue-200 font-bold text-lg">B</div>
+          <span class="text-xl font-semibold tracking-tight">Boss-App</span>
+        </div>
+        <nav class="space-y-2 text-sm font-medium">
+          <a href="#" class="flex items-center gap-3 rounded-xl bg-blue-600/35 border border-blue-400/30 px-4 py-3 text-white"><span>🏠</span> Dashboard</a>
+          <a href="#" class="flex items-center gap-3 rounded-xl px-4 py-3 text-slate-300 hover:bg-white/10 transition"><span>📅</span> KI-Terminplaner</a>
+          <a href="#" class="flex items-center gap-3 rounded-xl px-4 py-3 text-slate-300 hover:bg-white/10 transition"><span>👥</span> Schüler & Gruppen</a>
+          <a href="#" class="flex items-center gap-3 rounded-xl px-4 py-3 text-slate-300 hover:bg-white/10 transition"><span>✉️</span> KI-Postfach & Infos</a>
+        </nav>
+      </div>
+      <div class="pt-6 border-t border-white/10">
+        <a href="#" class="flex items-center gap-3 rounded-xl px-4 py-3 text-sm text-slate-400 hover:bg-white/10 transition"><span>⚙️</span> Einstellungen</a>
+      </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col justify-between p-4 md:p-8 pb-36">
+      <div>
+        <header class="flex flex-wrap items-center justify-between gap-4 mb-8">
+          <div>
+            <h1 class="text-2xl md:text-3xl font-bold tracking-tight drop-shadow">Guten Tag! Dein KI-Co-Pilot</h1>
+            <p id="weather-status-text" class="text-sm text-blue-100/90 mt-1">Himmel passt sich automatisch an Tageszeit & Wetter an.</p>
+          </div>
+          <div class="flex items-center gap-1.5 rounded-full bg-[#070e1d]/70 border border-white/15 p-1.5 backdrop-blur-md">
+            <button onclick="setSky('day')" id="btn-day" class="px-3 py-1.5 rounded-full text-xs font-medium bg-sky-500 text-white">☀️ Tag</button>
+            <button onclick="setSky('night')" id="btn-night" class="px-3 py-1.5 rounded-full text-xs font-medium text-slate-300">🌙 Nacht</button>
+            <button onclick="setSky('rain')" id="btn-rain" class="px-3 py-1.5 rounded-full text-xs font-medium text-slate-300">🌧️ Regen</button>
+          </div>
+        </header>
+
+        <div id="ai-toast" class="hidden mb-6 rounded-2xl bg-blue-500/25 border border-blue-400/40 px-5 py-3.5 text-sm text-blue-50 backdrop-blur-md flex items-center justify-between">
+          <span id="ai-toast-text">✨ KI bereit...</span>
+          <button onclick="document.getElementById('ai-toast').classList.add('hidden')" class="text-xs text-blue-200 ml-4">✕</button>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div class="lg:col-span-2 space-y-6">
+            <section class="rounded-3xl bg-[#0b152b]/85 border border-white/15 p-6 backdrop-blur-xl shadow-2xl">
+              <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+                <span class="inline-flex items-center gap-2 rounded-full bg-blue-500/20 border border-blue-400/30 px-3.5 py-1 text-xs font-semibold text-blue-200">🕒 Nächster Termin: 14:00 Uhr</span>
+                <span class="text-xs text-slate-400">Einzelunterricht • Klavier</span>
+              </div>
+              <h2 class="text-xl font-bold mb-5">Max Mustermann</h2>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div class="rounded-2xl bg-[#060c1a]/80 border border-white/10 p-4">
+                  <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Rückblick letzte Stunde</div>
+                  <p class="text-sm text-slate-200">Übung 2 & 3 gespielt. Große Probleme beim sauberen Tonanstoß und beim Tempo-Übergang.</p>
+                </div>
+                <div class="rounded-2xl bg-blue-950/60 border border-blue-400/30 p-4">
+                  <div class="text-xs font-semibold text-blue-300 uppercase tracking-wider mb-2">✨ KI-Arbeitsplan heute</div>
+                  <p class="text-sm text-blue-50">5 Min. gezielte Atem- und Anschlagsübung vorab, danach Phrasierung in Übung 3 langsam festigen.</p>
+                </div>
+              </div>
+              <button onclick="startVoiceInput()" class="w-full rounded-xl bg-white/10 hover:bg-white/15 border border-white/15 py-3 text-sm font-medium flex items-center justify-center gap-2">
+                <span>🎙️</span> Notiz nach Termin einsprechen
+              </button>
+            </section>
+
+            <section class="rounded-3xl bg-[#0b152b]/80 border border-white/10 p-6 backdrop-blur-xl shadow-xl">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-xs font-semibold text-indigo-300">🎼 19:00 Uhr • Gesamtprobe</span>
+                <span class="text-xs text-slate-400">Sinfonisches Blasorchester</span>
+              </div>
+              <h3 class="text-lg font-bold mb-2">KI-Probenplan für heute Abend</h3>
+              <p class="text-sm text-slate-300">
+                Aus letzter Probe gemerkt: Probleme bei Titel A (Satz 2).
+                <span class="text-blue-200 font-medium">Empfehlung: Titel A nochmal festigen und gleichzeitig das gesamte Orchester gemeinsam mit Phrasierung spielen lassen, damit der Übergang zum nächsten Titel gelingt.</span>
+              </p>
+            </section>
+          </div>
+
+          <div class="space-y-6">
+            <section class="rounded-3xl bg-[#0b152b]/85 border border-white/15 p-5 backdrop-blur-xl shadow-xl">
+              <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider mb-4">Heutiger Tagesplan</h3>
+              <div class="space-y-3">
+                <div class="flex items-start gap-3 rounded-2xl bg-blue-500/20 border border-blue-400/30 p-3.5">
+                  <div class="mt-1.5 h-2.5 w-2.5 rounded-full bg-blue-400 shrink-0"></div>
+                  <div>
+                    <div class="text-sm font-semibold">14:00 – Max Mustermann</div>
+                    <div class="text-xs text-blue-200/80">Klavier • KI-Briefing bereit</div>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3 rounded-2xl bg-white/5 p-3.5">
+                  <div class="mt-1.5 h-2.5 w-2.5 rounded-full bg-slate-500 shrink-0"></div>
+                  <div>
+                    <div class="text-sm font-semibold">15:00 – Sarah Weber</div>
+                    <div class="text-xs text-slate-400">Querflöte • Prüfungsvorbereitung</div>
+                  </div>
+                </div>
+                <div class="flex items-start gap-3 rounded-2xl bg-white/5 p-3.5">
+                  <div class="mt-1.5 h-2.5 w-2.5 rounded-full bg-indigo-400 shrink-0"></div>
+                  <div>
+                    <div class="text-sm font-semibold">19:00 – Orchesterprobe</div>
+                    <div class="text-xs text-slate-400">Probenplan generiert</div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section class="rounded-3xl bg-[#0b152b]/85 border border-white/15 p-5 backdrop-blur-xl shadow-xl">
+              <h3 class="text-sm font-bold text-slate-200 uppercase tracking-wider mb-3">KI-Postfach & Infos</h3>
+              <div class="rounded-2xl bg-[#060c1a]/80 border border-white/10 p-4 space-y-3">
+                <div class="text-xs text-blue-300 font-semibold">✉️ E-Mail-Antwort vorbereitet</div>
+                <p class="text-sm text-slate-200">Anfrage Probestunde (Familie Klein). KI schlägt freien Termin am Donnerstag um 16:00 Uhr vor.</p>
+                <div class="flex gap-2 pt-1">
+                  <button onclick="showToast('✅ E-Mail-Antwort an Familie Klein wurde versendet!')" class="flex-1 rounded-xl bg-blue-600 hover:bg-blue-500 py-2 text-xs font-semibold">Genehmigen</button>
+                  <button onclick="showToast('✏️ Entwurf zum Bearbeiten geöffnet.')" class="rounded-xl bg-white/10 hover:bg-white/15 px-3 py-2 text-xs font-medium">Bearbeiten</button>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="fixed bottom-0 inset-x-0 z-20 bg-gradient-to-t from-[#040812] via-[#070e1d]/95 to-transparent pt-8 pb-5 px-4">
+    <div class="max-w-3xl mx-auto flex items-center gap-3">
+      <button id="mic-btn" onclick="startVoiceInput()" class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-blue-600 hover:bg-blue-500 shadow-lg text-2xl">🎙️</button>
+      <form onsubmit="handleTextCommand(event)" class="flex-1 flex items-center rounded-2xl bg-[#0b152b]/95 border border-white/15 px-4 py-3.5 backdrop-blur-xl shadow-2xl">
+        <input id="command-input" type="text" placeholder="Sprachbefehl oder Notiz eingeben..." class="w-full bg-transparent text-sm text-white placeholder-slate-400 focus:outline-none" />
+        <button type="submit" class="ml-2 rounded-xl bg-blue-600 hover:bg-blue-500 px-3.5 py-2 text-xs font-semibold text-white">Senden</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function setSky(mode) {
+      const body = document.getElementById('app-body');
+      ['day', 'night', 'rain'].forEach(m => {
+        document.getElementById('sky-' + m).classList.add('hidden');
+        document.getElementById('btn-' + m).className = 'px-3 py-1.5 rounded-full text-xs font-medium text-slate-300';
+      });
+      document.getElementById('sky-' + mode).classList.remove('hidden');
+      if (mode === 'day') {
+        body.className = 'min-h-screen text-white transition-all duration-1000 relative overflow-x-hidden bg-gradient-to-b from-[#38bdf8] via-[#1d4ed8] to-[#070e1d]';
+        document.getElementById('btn-day').className = 'px-3 py-1.5 rounded-full text-xs font-medium bg-sky-500 text-white';
+      } else if (mode === 'rain') {
+        body.className = 'min-h-screen text-white transition-all duration-1000 relative overflow-x-hidden bg-gradient-to-b from-[#334155] via-[#1e293b] to-[#070e1d]';
+        document.getElementById('btn-rain').className = 'px-3 py-1.5 rounded-full text-xs font-medium bg-slate-600 text-white';
+      } else {
+        body.className = 'min-h-screen text-white transition-all duration-1000 relative overflow-x-hidden bg-gradient-to-b from-[#0b132b] via-[#172554] to-[#070e1d]';
+        document.getElementById('btn-night').className = 'px-3 py-1.5 rounded-full text-xs font-medium bg-indigo-600 text-white';
+      }
+    }
+    function showToast(text) {
+      document.getElementById('ai-toast-text').innerText = text;
+      document.getElementById('ai-toast').classList.remove('hidden');
+    }
+    function handleTextCommand(e) {
+      e.preventDefault();
+      const input = document.getElementById('command-input');
+      if (!input.value.trim()) return;
+      showToast('✨ KI hat gespeichert & verarbeitet: "' + input.value + '"');
+      input.value = '';
+    }
+    function startVoiceInput() {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) { showToast('🎙️ Spracheingabe bitte im Textfeld nutzen.'); return; }
+      const rec = new SR();
+      rec.lang = 'de-DE';
+      document.getElementById('mic-btn').classList.add('bg-red-500', 'animate-pulse');
+      showToast('🎙️ Ich höre zu... Sprich jetzt.');
+      rec.onresult = (e) => {
+        const t = e.results[0][0].transcript;
+        document.getElementById('command-input').value = t;
+        showToast('✨ Verstanden: "' + t + '"');
+      };
+      rec.onend = () => document.getElementById('mic-btn').classList.remove('bg-red-500', 'animate-pulse');
+      rec.start();
+    }
+    window.addEventListener('DOMContentLoaded', () => {
+      const h = new Date().getHours();
+      setSky(h >= 6 && h < 18 ? 'day' : 'night');
+      fetch('https://open-meteo.com')
+        .then(r => r.json()).then(d => {
+          if (d && d.current) {
+            if (d.current.rain > 0 || d.current.showers > 0) setSky('rain');
+            else setSky(d.current.is_day === 1 ? 'day' : 'night');
+          }
+        }).catch(() => {});
+    });
+  </script>
+</body>
+</html>
