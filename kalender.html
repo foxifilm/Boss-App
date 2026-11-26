@@ -64,3 +64,101 @@
         </div>
         <button onclick="openDetails('berger')" class="btn btn-primary" style="background:#0d9488;">Details öffnen</button>
       </div>
+      <div id="detail-box" class="detail-panel hidden">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h3 id="detail-title" style="font-size: 19px; color: #5eead4;">Termin-Details</h3>
+          <button onclick="document.getElementById('detail-box').classList.add('hidden')" class="btn-nav">Schließen ✕</button>
+        </div>
+        <div class="detail-grid">
+          <div class="inner-box" style="background: rgba(6,24,38,0.9);">
+            <div class="box-label" style="color:#99f6e4;">🎙️ Gesprochene & getippte Infos zum Termin</div>
+            <p id="detail-notes" style="font-size: 14px; line-height: 1.6; margin-bottom: 16px; color: #e2e8f0;"></p>
+            <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 14px; margin-top: 12px;">
+              <p id="finance-text" style="font-size: 13.5px; color: #fde68a; margin-bottom: 10px; font-weight: 600;"></p>
+              <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                <button onclick="addRevenue()" class="btn" style="background:#059669;">✅ Zur Kundeneinnahmerechnung hinzufügen</button>
+                <a href="finanzen.html" class="btn" style="background:rgba(255,255,255,0.12); text-decoration:none;">📊 Monats- / Gesamtrechnung</a>
+              </div>
+            </div>
+          </div>
+          <div class="ai-box">
+            <div class="box-label" style="color:#5eead4;">✨ Mitdenkende KI – Ratschläge & Optimierung</div>
+            <p id="detail-ai-advice" style="font-size: 14px; line-height: 1.6; margin-bottom: 16px; color: #f0fdfa;"></p>
+            <div style="background: rgba(4,18,29,0.75); border: 1px solid rgba(45,212,191,0.3); border-radius: 12px; padding: 14px;">
+              <div style="font-size: 12px; font-weight: 700; color: #5eead4; margin-bottom: 6px;">✉️ Eingehende E-Mail erkannt:</div>
+              <p id="detail-email-info" style="font-size: 13px; color: #cbd5e1; margin-bottom: 10px;"></p>
+              <div style="display:flex; flex-wrap:wrap; gap:8px;">
+                <button onclick="document.getElementById('email-reply-preview').classList.remove('hidden')" class="btn" style="background:#0d9488;">Antwort anzeigen</button>
+                <button onclick="showToast('✅ E-Mail-Antwort wurde sofort versendet!')" class="btn" style="background:#2563eb;">Sofort antworten</button>
+              </div>
+              <p id="email-reply-preview" class="hidden" style="margin-top: 10px; font-size: 12.5px; color: #99f6e4; background: rgba(13,148,136,0.2); padding: 10px; border-radius: 8px;"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-woche" class="card hidden" style="background: rgba(8,29,44,0.85); border-color: rgba(45,212,191,0.25);"><h2 style="color:#ccfbf1;">Wochenübersicht (KW 48)</h2><p style="font-size:14px;color:#cbd5e1;margin-top:8px;">Mo: 4 Termine • Di: 5 Termine • Mi: Orchesterprobe • Do: 2 Termine • Fr: 3 Termine.</p></div>
+    <div id="view-monat" class="card hidden" style="background: rgba(8,29,44,0.85); border-color: rgba(45,212,191,0.25);"><h2 style="color:#ccfbf1;">Monatsplan – November 2026</h2><p style="font-size:14px;color:#cbd5e1;margin-top:8px;">Gesamtübersicht aller Termine, Proben und Einnahmen im aktuellen Monat.</p></div>
+    <div id="view-jahr" class="card hidden" style="background: rgba(8,29,44,0.85); border-color: rgba(45,212,191,0.25);"><h2 style="color:#ccfbf1;">Jahresplan – 2026</h2><p style="font-size:14px;color:#cbd5e1;margin-top:8px;">Ferienzeiten, Konzerte, Festivals und Jahres-Umsatzübersicht auf einen Blick.</p></div>
+  </div>
+
+  <div class="bottom-bar">
+    <div class="input-wrap">
+      <button id="mic-btn" onclick="startVoiceInput()" class="mic-btn" style="background:#0d9488;">🎙️</button>
+      <form onsubmit="handleTextCommand(event)" class="text-form" style="border-color: rgba(45,212,191,0.35);">
+        <input id="command-input" type="text" placeholder="Termin-Notiz oder Einnahme einsprechen..." />
+        <button type="submit" class="btn" style="background:#0d9488;">Senden</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let currentDetailKey = 'max';
+    function goBack() {
+      if (!document.getElementById('detail-box').classList.contains('hidden')) document.getElementById('detail-box').classList.add('hidden');
+      else window.location.href = 'index.html';
+    }
+    function switchView(view) {
+      ['tag', 'woche', 'monat', 'jahr'].forEach(v => { document.getElementById('view-' + v).classList.add('hidden'); document.getElementById('tab-' + v).classList.remove('active'); });
+      document.getElementById('view-' + view).classList.remove('hidden'); document.getElementById('tab-' + view).classList.add('active');
+    }
+    function openDetails(key) {
+      currentDetailKey = key;
+      document.getElementById('email-reply-preview').classList.add('hidden');
+      if (key === 'max') {
+        document.getElementById('detail-title').innerText = '14:00 Uhr – Max Mustermann (Details & KI)';
+        document.getElementById('detail-notes').innerText = 'Letzte Stunde: Übung 2 & 3 gespielt. Max hatte große Probleme mit dem sauberen Ton-Ansatz. Heute 20 Euro in bar bezahlt.';
+        document.getElementById('finance-text').innerText = '💶 Max Mustermann hat 20,00 € in bar bezahlt. Zur Kundeneinnahmerechnung hinzufügen?';
+        document.getElementById('detail-ai-advice').innerText = '💡 KI-Empfehlung für den Ton-Ansatz: Ein kleines Teeblatt auf die Zungenspitze legen und so tun, als ob man es leicht ausspuckt – das trainiert den präzisen Zungenstoß sofort.';
+        document.getElementById('detail-email-info').innerText = 'E-Mail von Firma Musik-Express: Neues Notenheft-Angebot eingetroffen. Soll ich direkt antworten?';
+        document.getElementById('email-reply-preview').innerText = 'Entwurf: "Guten Tag, bitte senden Sie uns ein Ansichtsexemplar an unsere bekannte Adresse. Viele Grüße!"';
+      } else {
+        document.getElementById('detail-title').innerText = '15:30 Uhr – Kundentermin Frau Berger (Details & KI)';
+        document.getElementById('detail-notes').innerText = 'Pflege durchgeführt. Beim letzten Mal war das Ergebnis durch die Trocknungszeit etwas schwächer.';
+        document.getElementById('finance-text').innerText = '💶 Offener Betrag: 65,00 €. Zur Kundeneinnahmerechnung hinzufügen?';
+        document.getElementById('detail-ai-advice').innerText = '💡 KI-Optimierung: Dieser Termin passt künftig besser abends um 17:00 Uhr, da die Haare länger trocknen müssen. Zudem Tipp: Bei Firma BioCare bekommst du das Produkt günstiger bei gleicher Qualität und schonender für die Gesundheit.';
+        document.getElementById('detail-email-info').innerText = 'E-Mail von Firma BioCare: Rabattcode für Neukunden verfügbar. Soll ich die Preisliste anfordern?';
+        document.getElementById('email-reply-preview').innerText = 'Entwurf: "Sehr geehrte Damen und Herren, bitte senden Sie mir Ihre aktuelle Händler-Preisliste zu."';
+      }
+      document.getElementById('detail-box').classList.remove('hidden');
+    }
+    function addRevenue() {
+      const amount = currentDetailKey === 'max' ? '20,00 € (Max Mustermann)' : '65,00 € (Frau Berger)';
+      const saved = JSON.parse(localStorage.getItem('boss_revenues') || '[]');
+      saved.push({ datum: '26.11.2026', posten: amount });
+      localStorage.setItem('boss_revenues', JSON.stringify(saved));
+      showToast('✅ ' + amount + ' wurde zur Kundeneinnahmerechnung hinzugefügt!');
+    }
+    function showToast(text) { document.getElementById('ai-toast-text').innerText = text; document.getElementById('ai-toast').classList.remove('hidden'); }
+    function handleTextCommand(e) { e.preventDefault(); const i = document.getElementById('command-input'); if (!i.value.trim()) return; showToast('✨ KI gespeichert: "' + i.value + '"'); i.value = ''; }
+    function startVoiceInput() {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) { showToast('🎙️ Spracheingabe bitte im Textfeld nutzen.'); return; }
+      const rec = new SR(); rec.lang = 'de-DE'; document.getElementById('mic-btn').classList.add('recording'); showToast('🎙️ Ich höre zu...');
+      rec.onresult = (e) => { const t = e.results.transcript; document.getElementById('command-input').value = t; showToast('✨ Verstanden: "' + t + '"'); };
+      rec.onend = () => document.getElementById('mic-btn').classList.remove('recording'); rec.start();
+    }
+  </script>
+</body>
+</html>
