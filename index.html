@@ -3,136 +3,113 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Boss-App – Dein KI-Co-Pilot</title>
+  <title>Boss-App – Startseite</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    body.sunset-theme {
+      background: linear-gradient(180deg, #7c2d12 0%, #ea580c 18%, #f97316 30%, #1e1b4b 52%, #070e1d 85%) !important;
+    }
+    .sunset-sun {
+      position: absolute; top: 45px; left: 50%; transform: translateX(-50%);
+      width: 240px; height: 240px; border-radius: 50%;
+      background: radial-gradient(circle, #fef08a 0%, #fb923c 45%, rgba(234, 88, 12, 0) 75%);
+      filter: blur(6px); opacity: 0.9;
+    }
+    .sunset-horizon {
+      position: absolute; top: 190px; left: 0; right: 0; height: 90px;
+      background: linear-gradient(180deg, rgba(251, 146, 60, 0.35), transparent);
+      filter: blur(20px);
+    }
+    .menu-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-top: 30px; }
+    .menu-card {
+      background: rgba(11, 21, 43, 0.86); border: 1px solid rgba(251, 146, 60, 0.35);
+      border-radius: 24px; padding: 26px; text-decoration: none; color: #fff;
+      backdrop-filter: blur(16px); box-shadow: 0 18px 35px rgba(0, 0, 0, 0.4);
+      transition: transform 0.2s, border-color 0.2s, background 0.2s;
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .menu-card:hover { transform: translateY(-4px); border-color: #fb923c; background: rgba(17, 31, 61, 0.95); }
+    .menu-icon { font-size: 32px; margin-bottom: 14px; display: inline-block; }
+    .menu-title { font-size: 19px; font-weight: 700; margin-bottom: 8px; color: #ffedd5; }
+    .menu-desc { font-size: 13.5px; line-height: 1.5; color: #cbd5e1; }
+  </style>
 </head>
-<body id="app-body" class="sky-night">
+<body class="sunset-theme">
+
   <div class="sky-layer">
-    <div id="sky-day" class="hidden">
-      <div class="sun-glow"></div>
-      <div class="cloud" style="top:40px;left:22%;width:260px;height:55px;"></div>
-      <div class="cloud" style="top:85px;right:28%;width:210px;height:45px;"></div>
-    </div>
-    <div id="sky-night">
-      <div class="star" style="width:3px;height:3px;top:30px;left:15%;"></div>
-      <div class="star" style="width:4px;height:4px;top:55px;left:32%;animation-delay:0.7s;"></div>
-      <div class="star" style="width:3px;height:3px;top:25px;left:52%;animation-delay:1.4s;"></div>
-      <div class="star" style="width:4px;height:4px;top:75px;left:68%;animation-delay:0.3s;"></div>
-      <div class="star" style="width:3px;height:3px;top:42px;left:84%;animation-delay:1.9s;"></div>
-    </div>
-    <div id="sky-rain" class="hidden"><div class="rain-drops"></div></div>
+    <div class="sunset-sun"></div>
+    <div class="sunset-horizon"></div>
   </div>
 
-  <div class="app-shell">
-    <aside class="sidebar">
-      <div>
-        <div class="brand"><div class="brand-icon">B</div><span>Boss-App</span></div>
-        <nav>
-          <a href="#" class="nav-item active">🏠 Dashboard</a>
-          <a href="#" class="nav-item">📅 KI-Terminplaner</a>
-          <a href="#" class="nav-item">👥 Schüler & Gruppen</a>
-          <a href="#" class="nav-item">✉️ KI-Postfach & Infos</a>
-        </nav>
+  <div class="app-shell" style="flex-direction: column; padding: 32px 20px 130px 20px;">
+    <header style="text-align: center; margin-top: 20px; margin-bottom: 35px;">
+      <div style="display:inline-flex; align-items:center; gap:10px; background:rgba(7,14,29,0.65); border:1px solid rgba(251,146,60,0.4); padding:8px 18px; border-radius:999px; margin-bottom:16px;">
+        <span style="font-weight:800; color:#fdba74;">B</span>
+        <span style="font-size:14px; font-weight:600; letter-spacing:0.05em;">BOSS-APP • KI-ASSISTENT</span>
       </div>
-      <a href="#" class="nav-item">⚙️ Einstellungen</a>
-    </aside>
+      <h1 style="font-size: 32px; font-weight: 800; text-shadow: 0 4px 16px rgba(0,0,0,0.5);">
+        Willkommen in deiner Zentrale
+      </h1>
+      <p style="font-size: 15px; color: #ffedd5; margin-top: 6px; opacity: 0.9;">
+        Wähle einen Bereich oder sprich deinen Wunsch direkt unten ein.
+      </p>
+    </header>
 
-    <main class="main">
-      <header class="topbar">
+    <div id="ai-toast" class="toast hidden" style="max-width: 850px; margin: 0 auto 24px auto; width: 100%;">
+      <span id="ai-toast-text">✨ KI bereit...</span>
+      <button onclick="document.getElementById('ai-toast').classList.add('hidden')" style="background:none;border:none;color:#fff;cursor:pointer;">✕</button>
+    </div>
+
+    <div class="menu-grid" style="max-width: 1050px; margin: 0 auto; width: 100%;">
+      <a href="kalender.html" class="menu-card">
         <div>
-          <h1>Guten Tag! Dein KI-Co-Pilot</h1>
-          <p id="weather-status">Himmel passt sich automatisch an Tageszeit & Wetter an.</p>
+          <span class="menu-icon">📅</span>
+          <div class="menu-title">Termine, Kalender & Zeit-Planung</div>
+          <p class="menu-desc">Stunden- & Tagesplan, Wochen-, Monats- und Jahresübersicht. Mit KI-Details, Ratschlägen zu jedem Termin, E-Mail-Antworten & Einnahmen-Erfassung.</p>
         </div>
-        <div class="sky-switch">
-          <button onclick="setSky('day')" id="btn-day" class="sky-btn">☀️ Tag</button>
-          <button onclick="setSky('night')" id="btn-night" class="sky-btn active">🌙 Nacht</button>
-          <button onclick="setSky('rain')" id="btn-rain" class="sky-btn">🌧️ Regen</button>
-        </div>
-      </header>
+        <div style="margin-top: 18px; font-size: 13px; font-weight: 600; color: #fdba74;">Zeit-Planung öffnen →</div>
+      </a>
 
-      <div id="ai-toast" class="toast hidden">
-        <span id="ai-toast-text">✨ KI bereit...</span>
-        <button onclick="document.getElementById('ai-toast').classList.add('hidden')" style="background:none;border:none;color:#fff;cursor:pointer;">✕</button>
-      </div>
-
-      <div class="grid">
+      <a href="gruppen.html" class="menu-card">
         <div>
-          <section class="card">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
-              <span class="badge">🕒 Nächster Termin: 14:00 Uhr</span>
-              <span style="font-size:12px;color:#94a3b8;">Einzelunterricht • Klavier</span>
-            </div>
-            <h2 style="font-size:22px;">Max Mustermann</h2>
-            <div class="sub-grid">
-              <div class="inner-box">
-                <div class="box-label">Rückblick letzte Stunde</div>
-                <p style="font-size:14px;line-height:1.5;color:#e2e8f0;">Übung 2 & 3 gespielt. Große Probleme beim sauberen Tonanstoß und beim Tempo-Übergang.</p>
-              </div>
-              <div class="inner-box ai">
-                <div class="box-label">✨ KI-Arbeitsplan heute</div>
-                <p style="font-size:14px;line-height:1.5;color:#eff6ff;">5 Min. gezielte Atem- und Anschlagsübung vorab, danach Phrasierung in Übung 3 langsam festigen.</p>
-              </div>
-            </div>
-            <button onclick="startVoiceInput()" class="btn btn-glass">🎙️ Notiz nach Termin einsprechen</button>
-          </section>
-
-          <section class="card">
-            <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
-              <span style="font-size:12px;color:#a5b4fc;font-weight:600;">🎼 19:00 Uhr • Gesamtprobe</span>
-              <span style="font-size:12px;color:#94a3b8;">Sinfonisches Blasorchester</span>
-            </div>
-            <h3 style="font-size:18px;margin-bottom:8px;">KI-Probenplan für heute Abend</h3>
-            <p style="font-size:14px;line-height:1.6;color:#cbd5e1;">
-              Aus letzter Probe gemerkt: Probleme bei Titel A (Satz 2).
-              <strong style="color:#bfdbfe;">Empfehlung: Titel A nochmal festigen und gleichzeitig das gesamte Orchester gemeinsam mit Phrasierung spielen lassen, damit der Übergang zum nächsten Titel gelingt.</strong>
-            </p>
-          </section>
+          <span class="menu-icon">🎼</span>
+          <div class="menu-title">Gruppen- & Vereinsplanung</div>
+          <p class="menu-desc">Gruppen & Orchester zusammenstellen, Mitglieder vernetzen, Probenpläne steuern und KI-Ersatzlösungen bei Ausfällen finden.</p>
         </div>
+        <div style="margin-top: 18px; font-size: 13px; font-weight: 600; color: #fdba74;">Gruppen verwalten →</div>
+      </a>
 
+      <a href="finanzen.html" class="menu-card">
         <div>
-          <section class="card">
-            <div class="box-label" style="margin-bottom:14px;">Heutiger Tagesplan</div>
-            <div class="plan-item current"><div class="dot"></div><div><div style="font-size:14px;font-weight:600;">14:00 – Max Mustermann</div><div style="font-size:12px;color:#bfdbfe;">Klavier • KI-Briefing bereit</div></div></div>
-            <div class="plan-item"><div class="dot" style="background:#64748b;"></div><div><div style="font-size:14px;font-weight:600;">15:00 – Sarah Weber</div><div style="font-size:12px;color:#94a3b8;">Querflöte • Prüfungsvorbereitung</div></div></div>
-            <div class="plan-item"><div class="dot" style="background:#818cf8;"></div><div><div style="font-size:14px;font-weight:600;">19:00 – Orchesterprobe</div><div style="font-size:12px;color:#94a3b8;">Probenplan generiert</div></div></div>
-          </section>
-
-          <section class="card">
-            <div class="box-label" style="margin-bottom:12px;">KI-Postfach & Infos</div>
-            <div class="inner-box">
-              <div style="font-size:12px;color:#93c5fd;font-weight:600;margin-bottom:6px;">✉️ E-Mail-Antwort vorbereitet</div>
-              <p style="font-size:13px;line-height:1.5;color:#e2e8f0;margin-bottom:12px;">Anfrage Probestunde (Familie Klein). KI schlägt freien Termin am Donnerstag um 16:00 Uhr vor.</p>
-              <div style="display:flex;gap:8px;">
-                <button onclick="showToast('✅ E-Mail-Antwort an Familie Klein wurde versendet!')" class="btn btn-primary" style="flex:1;">Genehmigen</button>
-                <button onclick="showToast('✏️ Entwurf zum Bearbeiten geöffnet.')" class="btn" style="background:rgba(255,255,255,0.1);">Bearbeiten</button>
-              </div>
-            </div>
-          </section>
+          <span class="menu-icon">💶</span>
+          <div class="menu-title">Einnahmen & Ausgaben</div>
+          <p class="menu-desc">Kundeneinnahmen (Bar & Überweisung), Monats- und Gesamtrechnungen sowie Betriebsausgaben automatisch per KI erfassen.</p>
         </div>
-      </div>
-    </main>
+        <div style="margin-top: 18px; font-size: 13px; font-weight: 600; color: #fdba74;">Rechnungen ansehen →</div>
+      </a>
+
+      <a href="postfach.html" class="menu-card">
+        <div>
+          <span class="menu-icon">✉️</span>
+          <div class="menu-title">KI-Postfach & Weiterbildung</div>
+          <p class="menu-desc">Eingehende E-Mails prüfen, KI-Antworten direkt freigeben und wichtige Neuerungen & Weiterbildungen für deine Branche entdecken.</p>
+        </div>
+        <div style="margin-top: 18px; font-size: 13px; font-weight: 600; color: #fdba74;">Postfach öffnen →</div>
+      </a>
+    </div>
   </div>
 
   <div class="bottom-bar">
     <div class="input-wrap">
-      <button id="mic-btn" onclick="startVoiceInput()" class="mic-btn">🎙️</button>
-      <form onsubmit="handleTextCommand(event)" class="text-form">
-        <input id="command-input" type="text" placeholder="Sprachbefehl oder Notiz eingeben..." />
-        <button type="submit" class="btn btn-primary">Senden</button>
+      <button id="mic-btn" onclick="startVoiceInput()" class="mic-btn" style="background: #ea580c; box-shadow: 0 8px 25px rgba(234,88,12,0.5);">🎙️</button>
+      <form onsubmit="handleTextCommand(event)" class="text-form" style="border-color: rgba(251,146,60,0.4);">
+        <input id="command-input" type="text" placeholder="Sprachbefehl oder Notiz eingeben (z. B. 'Termin Max 20 Euro bar verbuchen')..." />
+        <button type="submit" class="btn" style="background: #ea580c;">Senden</button>
       </form>
     </div>
   </div>
 
   <script>
-    function setSky(mode) {
-      document.getElementById('app-body').className = 'sky-' + mode;
-      ['day', 'night', 'rain'].forEach(m => {
-        document.getElementById('sky-' + m).classList.add('hidden');
-        document.getElementById('btn-' + m).classList.remove('active');
-      });
-      document.getElementById('sky-' + mode).classList.remove('hidden');
-      document.getElementById('btn-' + mode).classList.add('active');
-    }
     function showToast(text) {
       document.getElementById('ai-toast-text').innerText = text;
       document.getElementById('ai-toast').classList.remove('hidden');
@@ -141,7 +118,7 @@
       e.preventDefault();
       const input = document.getElementById('command-input');
       if (!input.value.trim()) return;
-      showToast('✨ KI hat gespeichert & verarbeitet: "' + input.value + '"');
+      showToast('✨ KI verarbeitet: "' + input.value + '"');
       input.value = '';
     }
     function startVoiceInput() {
@@ -159,17 +136,6 @@
       rec.onend = () => document.getElementById('mic-btn').classList.remove('recording');
       rec.start();
     }
-    window.addEventListener('DOMContentLoaded', () => {
-      const h = new Date().getHours();
-      setSky(h >= 6 && h < 18 ? 'day' : 'night');
-      fetch('https://open-meteo.com')
-        .then(r => r.json()).then(d => {
-          if (d && d.current) {
-            if (d.current.rain > 0 || d.current.showers > 0) setSky('rain');
-            else setSky(d.current.is_day === 1 ? 'day' : 'night');
-          }
-        }).catch(() => {});
-    });
   </script>
 </body>
 </html>
