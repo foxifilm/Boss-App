@@ -11,8 +11,8 @@
     .tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
     .tab { background: rgba(6,24,38,0.88); border: 1px solid rgba(45,212,191,0.3); color: #cbd5e1; padding: 12px 18px; border-radius: 12px; font-weight: 600; cursor: pointer; }
     .tab.active { background: #0d9488; color: #fff; border-color: #2dd4bf; }
-    .item-card { background: rgba(6,24,38,0.9); border: 1px solid rgba(45,212,191,0.28); border-radius: 16px; padding: 18px; margin-bottom: 14px; }
-    .pattern-alert { background: rgba(245, 158, 11, 0.18); border: 1px solid rgba(251, 191, 36, 0.55); border-radius: 16px; padding: 16px; margin-bottom: 18px; color: #fef3c7; }
+    .item-card { background: rgba(6,24,38,0.9); border: 1px solid rgba(45,212,191,0.28); border-radius: 18px; padding: 18px; margin-bottom: 14px; }
+    .pattern-box { background: rgba(245, 158, 11, 0.16); border: 1px solid rgba(251, 191, 36, 0.55); border-radius: 12px; padding: 14px; margin-top: 12px; color: #fef3c7; }
     .ai-tip { background: rgba(13,148,136,0.2); border: 1px solid rgba(45,212,191,0.45); border-radius: 12px; padding: 14px; color: #ccfbf1; margin-top: 12px; }
     .field { background: rgba(4,18,29,0.95); border: 1px solid rgba(45,212,191,0.35); border-radius: 10px; padding: 12px; color: #fff; width: 100%; margin-bottom: 10px; }
   </style>
@@ -32,28 +32,14 @@
       <button onclick="document.getElementById('ai-toast').classList.add('hidden')" style="background:none;border:none;color:#fff;cursor:pointer;">✕</button>
     </div>
 
-    <!-- Automatische KI-Mustererkennung -->
-    <div class="pattern-alert">
-      <strong>🔍 KI-Mustererkennung (Automatische Langzeit-Analyse):</strong><br/>
-      • <strong>Verspätungs-Muster:</strong> Schüler <em>Fabian K.</em> kommt seit 6 Wochen regelmäßig 10–15 Min. zu spät.<br/>
-      • <strong>Anwesenheits-Muster (Gruppe/Orchester):</strong> <em>Thomas B.</em> fehlt jede zweite Woche bei der Probe.<br/>
-      • <strong>Qualitäts-Muster:</strong> Das Ensemble hat wiederkehrende Probleme bei <strong>Phrasen-Übergängen</strong> → KI-Empfehlung: Phrasenübung ab sofort als erstes Grundprinzip zu Beginn jeder Probe einbauen!
-    </div>
-
     <div class="tabs">
-      <button onclick="showTab('kalender')" id="t-kalender" class="tab active">📅 Unterrichts- & Probenkalender</button>
-      <button onclick="showTab('schueler')" id="t-schueler" class="tab">🗂️ Lernende Profile & 10er-Pakete</button>
+      <button onclick="showTab('kalender')" id="t-kalender" class="tab active">📅 Termin-Details & KI-Mustererkennung</button>
       <button onclick="showTab('finanzen')" id="t-finanzen" class="tab">💶 Einnahmen, Ausgaben & Steuer-Export</button>
     </div>
 
     <div id="sec-kalender" class="card" style="background:rgba(8,29,44,0.88); border-color:rgba(45,212,191,0.28);">
-      <h2 style="color:#ccfbf1; margin-bottom:14px;">Anstehende Stunden, Proben & KI-Vorbereitung</h2>
+      <h2 style="color:#ccfbf1; margin-bottom:14px;">Termin-Details inkl. Lernender Profile & KI-Mustererkennung</h2>
       <div id="list-stunden"></div>
-    </div>
-
-    <div id="sec-schueler" class="card hidden" style="background:rgba(8,29,44,0.88); border-color:rgba(45,212,191,0.28);">
-      <h2 style="color:#ccfbf1; margin-bottom:14px;">🗂️ Lernende Profile & Stundenpaket-Tracker (100 % Lokal)</h2>
-      <div id="list-schueler"></div>
     </div>
 
     <div id="sec-finanzen" class="card hidden" style="background:rgba(8,29,44,0.88); border-color:rgba(45,212,191,0.28);">
@@ -70,6 +56,7 @@
       <div id="list-l-fin"></div>
     </div>
   </div>
+
   <div class="bottom-bar">
     <div class="input-wrap">
       <button id="mic-btn" onclick="startVoice()" class="mic-btn" style="background:#0d9488;">🎙️</button>
@@ -79,16 +66,15 @@
       </form>
     </div>
   </div>
-
   <script>
     const defaultTeacherDB = {
       stunden: [
-        { id: 1, zeit: "Dienstag, 14:00 Uhr", name: "Max", thema: "Mathematik – Bruchrechnung", letztesMal: "Probleme beim Kürzen und Hauptnenner finden.", kiVorschlag: "Einstieg mit anschaulichen Pizzastück-Aufgaben, danach 3 einfache Übungen zum Hauptnenner festigen.", hausaufgabe: "Arbeitsblatt S. 14 Nr. 1–4" },
-        { id: 2, zeit: "Mittwoch, 19:00 Uhr", name: "Ensemble / Orchester", thema: "Gesamtprobe – Festival-Programm", letztesMal: "Satz 2 noch unsauber; Thomas B. fehlte (2-Wochen-Rhythmus).", kiVorschlag: "Erstes Grundprinzip heute: 15 Min. gemeinsame Phrasenübung für das gesamte Orchester, bevor das neue Stück begonnen wird.", hausaufgabe: "Takte 32–64 langsam mit Metronom üben" }
+        { id: 1, zeit: "Dienstag, 14:00 Uhr", name: "Max", thema: "Mathematik – Bruchrechnung", letztesMal: "Probleme beim Kürzen und Hauptnenner finden.", muster: "Schüler Fabian K. aus dieser Gruppe kommt seit 6 Wochen regelmäßig 10–15 Min. zu spät.", kiVorschlag: "Einstieg mit anschaulichen Pizzastück-Aufgaben, danach 3 einfache Übungen zum Hauptnenner festigen.", hausaufgabe: "Arbeitsblatt S. 14 Nr. 1–4" },
+        { id: 2, zeit: "Mittwoch, 19:00 Uhr", name: "Ensemble / Orchester", thema: "Gesamtprobe – Festival-Programm", letztesMal: "Satz 2 noch unsauber.", muster: "1) Thomas B. fehlt jede zweite Woche bei der Probe. 2) Wiederkehrendes Problem bei Phrasen-Übergängen erkannt.", kiVorschlag: "Phrasenübung ab sofort als erstes Grundprinzip zu Beginn jeder Probe einbauen, bevor das neue Stück begonnen wird.", hausaufgabe: "Takte 32–64 langsam mit Metronom üben" }
       ],
       schueler: {
-        "Max": { staerken: "Kopfrechnen, hohe Motivation", schwaechen: "Bruchrechnung (Hauptnenner)", paketVerbraucht: 7, paketGesamt: 10, stundenpreis: 35, historie: ["Bruchrechnung Grundlagen", "Dezimalzahlen"] },
-        "Fabian K.": { staerken: "Rhythmusgefühl", schwaechen: "Kommt seit 6 Wochen regelmäßig zu spät", paketVerbraucht: 10, paketGesamt: 10, stundenpreis: 35, historie: ["Tonleiter-Übungen (10er-Paket voll – Abrechnung fällig!)"] }
+        "Max": { staerken: "Kopfrechnen, hohe Motivation", schwaechen: "Bruchrechnung (Hauptnenner)", paketVerbraucht: 7, paketGesamt: 10 },
+        "Ensemble / Orchester": { staerken: "Klangfülle, Dynamik", schwaechen: "Phrasen-Übergänge", paketVerbraucht: 4, paketGesamt: 10 }
       },
       finanzen: [
         { datum: "27.11.2026", text: "10er-Paket Honorar (Max)", betrag: 350.00 },
@@ -100,7 +86,7 @@
     function saveTDB(db) { localStorage.setItem('boss_teacher_db', JSON.stringify(db)); renderTeacher(); }
 
     function showTab(t) {
-      ['kalender','schueler','finanzen'].forEach(x => {
+      ['kalender','finanzen'].forEach(x => {
         document.getElementById('sec-' + x).classList.add('hidden');
         document.getElementById('t-' + x).classList.remove('active');
       });
@@ -115,28 +101,28 @@
       const db = getTDB();
 
       const nameMatch = raw.match(/^([A-ZÄÖÜ][a-zäöüß]+)/);
-      const schuelerName = nameMatch ? nameMatch[1] : "Schüler / Gruppe";
+      const schuelerName = nameMatch ? nameMatch : "Schüler / Gruppe";
       const timeMatch = raw.match(/(nächste\s+Woche\s+[A-Za-zäöüß]+\s+\d{1,2}\s*Uhr|[A-Za-zäöüß]+\s+\d{1,2}\s*Uhr|\d{1,2}:\d{2}\s*Uhr)/i);
-      const zeit = timeMatch ? timeMatch[0] : "Nächster Termin";
+      const zeit = timeMatch ? timeMatch : "Nächster Termin";
 
       db.stunden.unshift({
         id: Date.now(), zeit: zeit, name: schuelerName, thema: "Wiederholung & Vertiefung",
         letztesMal: raw,
+        muster: "KI prüft Anwesenheit & Lernverlauf automatisch weiter.",
         kiVorschlag: "Gezielte Wiederholung der genannten Schwierigkeit mit Schritt-für-Schritt-Übung starten.",
         hausaufgabe: "Übung aus der heutigen Stunde festigen"
       });
 
       if (!db.schueler[schuelerName]) {
-        db.schueler[schuelerName] = { staerken: "Wird erfasst", schwaechen: raw, paketVerbraucht: 1, paketGesamt: 10, stundenpreis: 35, historie: [raw] };
+        db.schueler[schuelerName] = { staerken: "Wird erfasst", schwaechen: raw, paketVerbraucht: 1, paketGesamt: 10 };
       } else {
         db.schueler[schuelerName].schwaechen = raw;
         db.schueler[schuelerName].paketVerbraucht += 1;
-        db.schueler[schuelerName].historie.unshift(raw);
       }
 
       saveTDB(db);
       document.getElementById('cmd-input').value = '';
-      showToast("✅ Schülerakte & Folgetermin (" + zeit + ") für " + schuelerName + " automatisch aktualisiert!");
+      showToast("✅ Termin-Details, Profil & Folgetermin (" + zeit + ") für " + schuelerName + " gespeichert!");
     }
 
     function sendParentUpdate(name, thema, hausaufgabe) {
@@ -150,7 +136,7 @@
       if (db.schueler[name]) {
         db.schueler[name].paketVerbraucht += 1;
         saveTDB(db);
-        showToast("✅ +1 Stunde im Paket von " + name + " verbucht!");
+        showToast("✅ +1 Stunde im 10er-Paket verbucht!");
       }
     }
 
@@ -179,32 +165,27 @@
 
     function renderTeacher() {
       const db = getTDB();
-      document.getElementById('list-stunden').innerHTML = db.stunden.map(s => `
-        <div class="item-card">
-          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
-            <strong style="color:#5eead4;">🕒 ${s.zeit} – ${s.name}</strong>
-            <span style="color:#94a3b8;">${s.thema}</span>
-          </div>
-          <p style="color:#e2e8f0; margin:10px 0;"><strong>Letztes Mal:</strong> ${s.letztesMal}</p>
-          <div class="ai-tip">✨ <strong>KI-Vorbereitung:</strong> ${s.kiVorschlag}</div>
-          <div style="margin-top:14px;">
-            <button onclick="sendParentUpdate('${s.name}','${s.thema}','${s.hausaufgabe}')" class="btn" style="background:#0d9488;">📲 Eltern-/Schüler-Update per Klick</button>
-          </div>
-        </div>`).join('');
-
-      document.getElementById('list-schueler').innerHTML = Object.keys(db.schueler).map(k => {
-        const p = db.schueler[k];
+      document.getElementById('list-stunden').innerHTML = db.stunden.map(s => {
+        const p = db.schueler[s.name] || { staerken: "Wird erfasst", schwaechen: s.letztesMal, paketVerbraucht: 1, paketGesamt: 10 };
         const offen = p.paketVerbraucht >= p.paketGesamt;
         return `<div class="item-card">
-          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
-            <strong>🎓 ${k}</strong>
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+            <strong style="color:#5eead4;">🕒 ${s.zeit} – ${s.name}</strong>
             <span class="badge" style="background:${offen ? 'rgba(239,68,68,0.25)' : 'rgba(13,148,136,0.25)'}; border-color:${offen ? '#f87171' : '#2dd4bf'}; color:#fff;">
-              10er-Paket: ${p.paketVerbraucht} / ${p.paketGesamt} Std. ${offen ? '(Abrechnung fällig!)' : ''}
+              10er-Paket: ${p.paketVerbraucht} / ${p.paketGesamt} Std.
             </span>
           </div>
-          <div style="color:#cbd5e1; margin-top:8px;"><strong>Stärken:</strong> ${p.staerken} | <strong style="color:#fde68a;">Fokus / Muster:</strong> ${p.schwaechen}</div>
-          <div style="margin-top:12px;">
-            <button onclick="addPaketStunde('${k}')" class="btn" style="background:rgba(255,255,255,0.12);">+1 Stunde abhaken</button>
+          <p style="color:#e2e8f0; margin:10px 0;"><strong>Letztes Mal (${s.thema}):</strong> ${s.letztesMal}</p>
+          <div style="color:#cbd5e1; margin-bottom:8px;"><strong>Lernendes Profil:</strong> Stärken: ${p.staerken} • Schwächen: ${p.schwaechen}</div>
+
+          <div class="pattern-box">
+            <strong>🔍 KI-Mustererkennung:</strong> ${s.muster}
+          </div>
+
+          <div class="ai-tip">✨ <strong>KI-Stundenvorbereitung:</strong> ${s.kiVorschlag}</div>
+          <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:14px;">
+            <button onclick="sendParentUpdate('${s.name}','${s.thema}','${s.hausaufgabe}')" class="btn" style="background:#0d9488;">📲 Eltern-/Schüler-Update per Klick</button>
+            <button onclick="addPaketStunde('${s.name}')" class="btn" style="background:rgba(255,255,255,0.12);">+1 Stunde im Paket abhaken</button>
           </div>
         </div>`;
       }).join('');
@@ -229,7 +210,7 @@
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
       if (!SR) { showToast('🎙️ Bitte Textfeld nutzen.'); return; }
       const r = new SR(); r.lang = 'de-DE'; document.getElementById('mic-btn').classList.add('recording'); showToast('🎙️ Ich höre zu...');
-      r.onresult = e => { document.getElementById('cmd-input').value = e.results[0][0].transcript; processTeacherSpeech(new Event('submit')); };
+      r.onresult = e => { document.getElementById('cmd-input').value = e.results.transcript; processTeacherSpeech(new Event('submit')); };
       r.onend = () => document.getElementById('mic-btn').classList.remove('recording'); r.start();
     }
     window.addEventListener('DOMContentLoaded', renderTeacher);
