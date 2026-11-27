@@ -7,9 +7,10 @@
   "theme_color": "#0d9488",
   "icons": [
     {
-      "src": "Gemini_Generated_Image_js4lnvjs4lnvjs4l.jpeg",
+      "src": "BüroAss.jpeg",
       "sizes": "512x512",
-      "type": "image/jpeg"
+      "type": "image/jpeg",
+      "purpose": "any"
     }
   ]
 }
