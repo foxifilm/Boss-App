@@ -3,27 +3,28 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Boss-App – Mobiler Dienstleister</title>
+  <title>BüroAss – Mobiler Dienstleister</title>
   <link rel="stylesheet" href="style.css" />
   <style>
     .top-nav { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
-    .btn-nav { background: rgba(255,255,255,0.1); border: 1px solid rgba(45,212,191,0.35); color: #ccfbf1; padding: 9px 15px; border-radius: 12px; text-decoration: none; font-size: 13px; font-weight: 600; cursor: pointer; }
-    .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
-    .tab { background: rgba(6,24,38,0.85); border: 1px solid rgba(45,212,191,0.25); color: #cbd5e1; padding: 10px 16px; border-radius: 12px; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+    .btn-nav { background: rgba(255,255,255,0.12); border: 1px solid rgba(45,212,191,0.4); color: #ccfbf1; padding: 10px 16px; border-radius: 12px; text-decoration: none; font-weight: 600; cursor: pointer; }
+    .tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+    .tab { background: rgba(6,24,38,0.88); border: 1px solid rgba(45,212,191,0.3); color: #cbd5e1; padding: 12px 18px; border-radius: 12px; font-weight: 600; cursor: pointer; }
     .tab.active { background: #0d9488; color: #fff; border-color: #2dd4bf; }
-    .item-card { background: rgba(6,24,38,0.88); border: 1px solid rgba(45,212,191,0.25); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
-    .ai-tip { background: rgba(13,148,136,0.18); border: 1px solid rgba(45,212,191,0.45); border-radius: 12px; padding: 12px; font-size: 13px; color: #ccfbf1; margin-top: 10px; }
-    .field { background: rgba(4,18,29,0.9); border: 1px solid rgba(45,212,191,0.3); border-radius: 10px; padding: 10px; color: #fff; font-size: 13px; width: 100%; margin-bottom: 8px; }
+    .item-card { background: rgba(6,24,38,0.9); border: 1px solid rgba(45,212,191,0.28); border-radius: 18px; padding: 18px; margin-bottom: 14px; }
+    .kundendaten-box { background: rgba(4,18,29,0.92); border: 1px solid rgba(94,234,212,0.35); border-radius: 12px; padding: 14px; margin-top: 12px; }
+    .ai-tip { background: rgba(13,148,136,0.2); border: 1px solid rgba(45,212,191,0.45); border-radius: 12px; padding: 14px; color: #ccfbf1; margin-top: 12px; }
+    .field { background: rgba(4,18,29,0.95); border: 1px solid rgba(45,212,191,0.35); border-radius: 10px; padding: 12px; color: #fff; width: 100%; margin-bottom: 10px; }
   </style>
 </head>
 <body class="subpage-theme">
-  <div class="app-shell" style="flex-direction: column; padding: 22px 18px 130px 18px;">
+  <div class="app-shell" style="flex-direction: column; padding: 22px 18px 140px 18px;">
     <div class="top-nav">
-      <div style="display:flex; gap:8px;">
+      <div style="display:flex; gap:10px;">
         <button onclick="history.back()" class="btn-nav">← Zurück</button>
         <a href="index.html" class="btn-nav">🏠 Startseite</a>
       </div>
-      <div style="font-size: 13px; color: #99f6e4; font-weight: 700;">✂️ Mobiler Dienstleister (Local-First)</div>
+      <div style="color: #99f6e4; font-weight: 700;">✂️ BüroAss • Mobiler Dienstleister</div>
     </div>
 
     <div id="ai-toast" class="toast hidden" style="border-color: #2dd4bf; background: rgba(13,148,136,0.35);">
@@ -32,34 +33,22 @@
     </div>
 
     <div class="tabs">
-      <button onclick="showTab('termine')" id="t-termine" class="tab active">📅 Termine & KI-Vorbereitung</button>
-      <button onclick="showTab('kunden')" id="t-kunden" class="tab">🗂️ Lernende Kundenakten</button>
+      <button onclick="showTab('termine')" id="t-termine" class="tab active">📅 Termin-Details & Lernende Kundenakte</button>
       <button onclick="showTab('finanzen')" id="t-finanzen" class="tab">💶 Einnahmen, Ausgaben & Steuer-Export</button>
     </div>
 
-    <!-- TAB 1: TERMINE & KI-VORBEREITUNG -->
-    <div id="sec-termine" class="card" style="background:rgba(8,29,44,0.86); border-color:rgba(45,212,191,0.25);">
-      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
-        <h2 style="font-size:18px; color:#ccfbf1;">Anstehende Termine & Intelligente Vorbereitung</h2>
-        <span style="font-size:12px; color:#5eead4;">Tipp: Unten einsprechen z. B. „Morgen 14 Uhr Frau Müller, Haarschnitt und Farbe, 85 Euro“</span>
-      </div>
+    <div id="sec-termine" class="card" style="background:rgba(8,29,44,0.88); border-color:rgba(45,212,191,0.28);">
+      <h2 style="color:#ccfbf1; margin-bottom:14px;">Termin-Details inkl. Lernender Kundendaten</h2>
       <div id="list-termine"></div>
     </div>
 
-    <!-- TAB 2: LERNENDE KUNDENAKTEN -->
-    <div id="sec-kunden" class="card hidden" style="background:rgba(8,29,44,0.86); border-color:rgba(45,212,191,0.25);">
-      <h2 style="font-size:18px; color:#ccfbf1; margin-bottom:14px;">🗂️ Lernende Kundenakten (100 % Lokal auf deinem Gerät)</h2>
-      <div id="list-kunden"></div>
-    </div>
-
-    <!-- TAB 3: EINNAHMEN, AUSGABEN & STEUER-EXPORT -->
-    <div id="sec-finanzen" class="card hidden" style="background:rgba(8,29,44,0.86); border-color:rgba(45,212,191,0.25);">
+    <div id="sec-finanzen" class="card hidden" style="background:rgba(8,29,44,0.88); border-color:rgba(45,212,191,0.28);">
       <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
-        <h2 style="font-size:18px; color:#ccfbf1;">💶 Monatsbilanz & Steuerberater-Export</h2>
+        <h2 style="color:#ccfbf1;">💶 Monatsbilanz & Steuerberater-Export</h2>
         <button onclick="exportCSV()" class="btn" style="background:#059669;">📊 Steuer-Export (CSV / Excel)</button>
       </div>
-      <div id="finance-summary" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:12px; margin-bottom:18px;"></div>
-      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px;">
+      <div id="finance-summary" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); gap:12px; margin-bottom:18px;"></div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px;">
         <input id="exp-name" class="field" style="flex:2; margin:0;" placeholder="Betriebsausgabe (z. B. Haarfarbe / Pflegeprodukte)" />
         <input id="exp-val" class="field" style="flex:1; margin:0;" type="number" step="0.01" placeholder="Betrag €" />
         <button onclick="addExpense()" class="btn" style="background:#dc2626;">+ Ausgabe</button>
@@ -67,16 +56,16 @@
       <div id="list-finanzen"></div>
     </div>
   </div>
+
   <div class="bottom-bar">
     <div class="input-wrap">
       <button id="mic-btn" onclick="startVoice()" class="mic-btn" style="background:#0d9488;">🎙️</button>
       <form onsubmit="processSpeechInput(event)" class="text-form" style="border-color: rgba(45,212,191,0.35);">
-        <input id="cmd-input" type="text" placeholder="Sprechen oder tippen: 'Morgen 14 Uhr Frau Müller, Haarschnitt und Farbe, 85 Euro'..." />
+        <input id="cmd-input" type="text" placeholder="Sprechen: 'Morgen 14 Uhr Frau Müller, Haarschnitt und Farbe, 85 Euro'..." />
         <button type="submit" class="btn" style="background:#0d9488;">KI-Anlage</button>
       </form>
     </div>
   </div>
-
   <script>
     const defaultDB = {
       termine: [
@@ -95,7 +84,7 @@
     function saveDB(db) { localStorage.setItem('boss_dl_db', JSON.stringify(db)); renderAll(); }
 
     function showTab(t) {
-      ['termine','kunden','finanzen'].forEach(x => {
+      ['termine','finanzen'].forEach(x => {
         document.getElementById('sec-' + x).classList.add('hidden');
         document.getElementById('t-' + x).classList.remove('active');
       });
@@ -109,13 +98,12 @@
       if (!raw) return;
       const db = getDB();
 
-      // Intelligentes Zerlegen der Spracheingabe (Name, Preis, Zeit, Leistung)
       const priceMatch = raw.match(/(\d+(?:[.,]\d+)?)\s*(?:euro|€)/i);
-      const preis = priceMatch ? parseFloat(priceMatch.replace(',', '.')) : 50;
+      const preis = priceMatch ? parseFloat(priceMatch[1].replace(',', '.')) : 50;
       const nameMatch = raw.match(/(Frau\s+[A-ZÄÖÜ][a-zäöüß]+|Herr\s+[A-ZÄÖÜ][a-zäöüß]+|[A-ZÄÖÜ][a-zäöüß]+\s+[A-ZÄÖÜ][a-zäöüß]+)/);
-      const kunde = nameMatch ? nameMatch : "Neukunde (Sprachnotiz)";
+      const kunde = nameMatch ? nameMatch[0] : "Neukunde (Sprachnotiz)";
       const timeMatch = raw.match(/(morgen\s+\d{1,2}\s*Uhr|heute\s+\d{1,2}\s*Uhr|\d{1,2}:\d{2}\s*Uhr|\d{1,2}\s*Uhr)/i);
-      const zeit = timeMatch ? timeMatch : "Nächster freier Slot";
+      const zeit = timeMatch ? timeMatch[0] : "Nächster Slot";
 
       db.termine.unshift({
         id: Date.now(), zeit: zeit, kunde: kunde, leistung: raw, preis: preis,
@@ -134,7 +122,7 @@
       db.finanzen.unshift({ datum: new Date().toLocaleDateString('de-DE'), typ: "Einnahme", text: kunde + " – " + raw, betrag: preis });
       saveDB(db);
       document.getElementById('cmd-input').value = '';
-      showToast("✅ Automatisch angelegt: Termin (" + zeit + "), Kundenakte für " + kunde + " & " + preis.toFixed(2) + " € Umsatz!");
+      showToast("✅ Termin, lernende Kundenakte & " + preis.toFixed(2) + " € Umsatz gespeichert!");
     }
 
     function createMsg(kunde, zeit, art) {
@@ -143,7 +131,7 @@
       if (art === 'erinnerung') msg = `Hallo ${kunde}, eine kleine Erinnerung an unseren Termin (${zeit}). Bis dahin!`;
       if (art === 'zahlung') msg = `Hallo ${kunde}, vielen Dank für Ihren Besuch! Hier ist Ihr Zahlungshinweis für die heutige Leistung.`;
       navigator.clipboard?.writeText(msg);
-      showToast("📲 Fertige Nachricht kopiert (bereit für WhatsApp / E-Mail): „" + msg + "“");
+      showToast("📲 Nachricht kopiert (bereit für WhatsApp / E-Mail): „" + msg + "“");
     }
 
     function addExpense() {
@@ -162,60 +150,60 @@
       const db = getDB();
       let csv = "Datum;Typ;Beschreibung;Betrag_EUR\n";
       db.finanzen.forEach(f => { csv += `${f.datum};${f.typ};"${f.text}";${f.betrag.toFixed(2).replace('.', ',')}\n`; });
-      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
       const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = "Steuerberater_Dienstleister_" + new Date().toISOString().slice(0,7) + ".csv";
+      a.href = URL.createObjectURL(new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" }));
+      a.download = "Steuerberater_Dienstleister.csv";
       a.click();
-      showToast("📊 CSV-Datei für den Steuerberater heruntergeladen!");
+      showToast("📊 CSV-Datei für den Steuerberater exportiert!");
     }
 
     function renderAll() {
       const db = getDB();
-      document.getElementById('list-termine').innerHTML = db.termine.map(t => `
-        <div class="item-card">
+      document.getElementById('list-termine').innerHTML = db.termine.map(t => {
+        const c = db.kunden[t.kunde] || { besuche: 1, vorlieben: t.leistung, allergien: "Keine bekannt", letzterPreis: t.preis.toFixed(2) + " €", historie: [t.leistung] };
+        return `<div class="item-card">
           <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
             <strong style="color:#5eead4;">🕒 ${t.zeit} – ${t.kunde}</strong>
             <span class="badge" style="background:rgba(16,185,129,0.2); border-color:#10b981; color:#a7f3d0;">${t.preis.toFixed(2)} €</span>
           </div>
-          <p style="font-size:13.5px; color:#e2e8f0; margin:8px 0;">${t.notiz}</p>
-          <div class="ai-tip">✨ <strong>KI-Vorbereitung:</strong> ${t.kiTipp}</div>
-          <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:12px;">
-            <button onclick="createMsg('${t.kunde}','${t.zeit}','bestaetigung')" class="btn" style="background:#0d9488; font-size:12px;">💬 Terminbestätigung</button>
-            <button onclick="createMsg('${t.kunde}','${t.zeit}','erinnerung')" class="btn" style="background:rgba(255,255,255,0.12); font-size:12px;">⏰ Erinnerung</button>
-            <button onclick="createMsg('${t.kunde}','${t.zeit}','zahlung')" class="btn" style="background:rgba(255,255,255,0.12); font-size:12px;">💶 Zahlungshinweis</button>
-          </div>
-        </div>`).join('');
+          <p style="color:#e2e8f0; margin:10px 0;">${t.notiz}</p>
 
-      document.getElementById('list-kunden').innerHTML = Object.keys(db.kunden).map(k => {
-        const c = db.kunden[k];
-        return `<div class="item-card">
-          <div style="display:flex; justify-content:space-between;"><strong>👤 ${k}</strong><span style="font-size:12px; color:#5eead4;">${c.besuche} Besuche • Letzter Preis: ${c.letzterPreis}</span></div>
-          <div style="font-size:13px; color:#cbd5e1; margin-top:6px;"><strong>Vorlieben:</strong> ${c.vorlieben} | <strong style="color:#fca5a5;">Allergien/Hinweise:</strong> ${c.allergien}</div>
-          <div style="font-size:12px; color:#94a3b8; margin-top:6px;">Bisherige Termine: ${c.historie.join(' • ')}</div>
+          <div class="kundendaten-box">
+            <div style="color:#5eead4; font-weight:700; margin-bottom:6px;">🗂️ Lernende Kundendaten (${c.besuche}. Besuch • Letzter Preis: ${c.letzterPreis})</div>
+            <div style="color:#cbd5e1;"><strong>Vorlieben:</strong> ${c.vorlieben}</div>
+            <div style="color:#fca5a5;"><strong>Allergien / Hinweise:</strong> ${c.allergien}</div>
+            <div style="color:#94a3b8; margin-top:4px;"><strong>Bisherige Termine:</strong> ${c.historie.join(' • ')}</div>
+          </div>
+
+          <div class="ai-tip">✨ <strong>KI-Vorbereitung:</strong> ${t.kiTipp}</div>
+          <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:14px;">
+            <button onclick="createMsg('${t.kunde}','${t.zeit}','bestaetigung')" class="btn" style="background:#0d9488;">💬 Terminbestätigung</button>
+            <button onclick="createMsg('${t.kunde}','${t.zeit}','erinnerung')" class="btn" style="background:rgba(255,255,255,0.12);">⏰ Erinnerung</button>
+            <button onclick="createMsg('${t.kunde}','${t.zeit}','zahlung')" class="btn" style="background:rgba(255,255,255,0.12);">💶 Zahlungshinweis</button>
+          </div>
         </div>`;
       }).join('');
 
       let ein = 0, aus = 0;
       document.getElementById('list-finanzen').innerHTML = db.finanzen.map(f => {
         if (f.betrag >= 0) ein += f.betrag; else aus += Math.abs(f.betrag);
-        return `<div class="item-card" style="display:flex; justify-content:space-between; padding:12px 16px;">
+        return `<div class="item-card" style="display:flex; justify-content:space-between; padding:14px 16px;">
           <span>${f.datum} • ${f.text}</span>
           <strong style="color:${f.betrag >= 0 ? '#34d399' : '#f87171'};">${f.betrag >= 0 ? '+' : ''}${f.betrag.toFixed(2)} €</strong>
         </div>`;
       }).join('');
       document.getElementById('finance-summary').innerHTML = `
-        <div class="inner-box"><div class="box-label">Einnahmen</div><strong style="font-size:20px; color:#34d399;">${ein.toFixed(2)} €</strong></div>
-        <div class="inner-box"><div class="box-label">Ausgaben</div><strong style="font-size:20px; color:#f87171;">${aus.toFixed(2)} €</strong></div>
-        <div class="inner-box ai"><div class="box-label">Monatsbilanz</div><strong style="font-size:20px; color:#5eead4;">${(ein - aus).toFixed(2)} €</strong></div>`;
+        <div class="inner-box"><div class="box-label">Einnahmen</div><strong style="color:#34d399;">${ein.toFixed(2)} €</strong></div>
+        <div class="inner-box"><div class="box-label">Ausgaben</div><strong style="color:#f87171;">${aus.toFixed(2)} €</strong></div>
+        <div class="inner-box ai"><div class="box-label">Monatsbilanz</div><strong style="color:#5eead4;">${(ein - aus).toFixed(2)} €</strong></div>`;
     }
 
     function showToast(t) { document.getElementById('ai-toast-text').innerText = t; document.getElementById('ai-toast').classList.remove('hidden'); }
     function startVoice() {
       const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR) { showToast('🎙️ Spracheingabe bitte im Textfeld nutzen.'); return; }
+      if (!SR) { showToast('🎙️ Bitte Textfeld nutzen.'); return; }
       const r = new SR(); r.lang = 'de-DE'; document.getElementById('mic-btn').classList.add('recording'); showToast('🎙️ Ich höre zu...');
-      r.onresult = e => { document.getElementById('cmd-input').value = e.results.transcript; processSpeechInput(); };
+      r.onresult = e => { document.getElementById('cmd-input').value = e.results[0][0].transcript; processSpeechInput(new Event('submit')); };
       r.onend = () => document.getElementById('mic-btn').classList.remove('recording'); r.start();
     }
     window.addEventListener('DOMContentLoaded', renderAll);
