@@ -15,21 +15,29 @@
     .termin-link { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; background: rgba(6,24,38,0.9); border: 1px solid rgba(45,212,191,0.28); border-radius: 16px; padding: 16px 20px; margin-bottom: 12px; text-decoration: none; color: #fff; }
     .termin-link:hover { border-color: #2dd4bf; background: rgba(13,148,136,0.22); }
     
-    /* Wochenübersicht: Mo ganz links bis So ganz rechts in EINER Reihe (am Handy rechts scrollen) */
-    .week-row { display: grid; grid-template-columns: repeat(7, minmax(175px, 1fr)); gap: 12px; overflow-x: auto; padding-bottom: 12px; }
-    .day-box { background: rgba(6,24,38,0.9); border: 1px solid rgba(45,212,191,0.28); border-radius: 16px; padding: 14px; min-height: 170px; }
+    /* Wochenübersicht: Am PC exakt 7 Spalten OHNE Scrollen, auf dem Handy zum Wischen */
+    .week-row { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; }
+    @media (max-width: 900px) {
+      .week-row { grid-template-columns: repeat(7, minmax(175px, 1fr)); overflow-x: auto; padding-bottom: 12px; }
+    }
+    .day-box { background: rgba(6,24,38,0.9); border: 1px solid rgba(45,212,191,0.28); border-radius: 14px; padding: 12px; min-height: 170px; overflow-wrap: break-word; }
     
-    /* Monatsübersicht: Echter Kalender mit Wochentagen & Datum */
-    .month-grid { display: grid; grid-template-columns: repeat(7, minmax(120px, 1fr)); gap: 8px; overflow-x: auto; }
+    /* Monatsübersicht: Saubere Zellen ohne Überlaufen bei vielen Terminen */
+    .month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+    @media (max-width: 900px) {
+      .month-grid { grid-template-columns: repeat(7, minmax(125px, 1fr)); overflow-x: auto; padding-bottom: 10px; }
+    }
     .month-head { text-align: center; font-weight: 700; color: #5eead4; padding: 8px; background: rgba(13,148,136,0.2); border-radius: 10px; }
-    .month-cell { background: rgba(6,24,38,0.88); border: 1px solid rgba(45,212,191,0.2); border-radius: 12px; padding: 10px; min-height: 95px; }
-    .mini-termin { display: block; background: rgba(13,148,136,0.28); border: 1px solid rgba(45,212,191,0.45); border-radius: 8px; padding: 8px; margin-top: 8px; color: #ccfbf1; text-decoration: none; font-size: 0.85rem !important; }
+    .month-cell { background: rgba(6,24,38,0.88); border: 1px solid rgba(45,212,191,0.2); border-radius: 12px; padding: 10px; min-height: 115px; display: flex; flex-direction: column; justify-content: space-between; }
+    .mini-termin { display: block; background: rgba(13,148,136,0.28); border: 1px solid rgba(45,212,191,0.45); border-radius: 8px; padding: 6px 8px; margin-top: 6px; color: #ccfbf1; text-decoration: none; font-size: 0.8rem !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .mini-termin:hover { background: #0d9488; color: #fff; }
+    .more-badge { display: block; text-align: center; background: rgba(251,146,60,0.25); border: 1px solid rgba(251,146,60,0.6); color: #ffedd5; border-radius: 8px; padding: 5px; margin-top: 6px; font-size: 0.78rem !important; font-weight: 700; cursor: pointer; text-decoration: none; }
+    .more-badge:hover { background: #ea580c; color: #fff; }
     .year-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; }
   </style>
 </head>
 <body class="subpage-theme">
-  <div class="app-shell" style="flex-direction: column; padding: 24px 20px 100px 20px;">
+  <div class="app-shell" style="flex-direction: column; padding: 24px 20px 100px 20px; max-width: 1440px;">
     <div class="top-nav">
       <div style="display:flex; gap:10px;">
         <button onclick="history.back()" class="btn-nav">← Zurück</button>
@@ -51,14 +59,13 @@
       <div id="day-list"></div>
     </div>
 
-    <!-- 2. WOCHENÜBERSICHT (MO GANZ LINKS BIS SO GANZ RECHTS IN EINER REIHE) -->
+    <!-- 2. WOCHENÜBERSICHT (MO–SO OHNE SCROLLEN AM PC) -->
     <div id="view-woche" class="card hidden" style="background:rgba(8,29,44,0.88); border-color:rgba(45,212,191,0.28);">
-      <h2 id="week-title" style="color:#ccfbf1; margin-bottom:6px;">Wochenübersicht (Mo – So)</h2>
-      <p style="color:#94a3b8; margin-bottom:14px;">Auf dem Handy einfach nach rechts wischen →</p>
+      <h2 id="week-title" style="color:#ccfbf1; margin-bottom:14px;">Wochenübersicht (Mo – So)</h2>
       <div class="week-row" id="week-list"></div>
     </div>
 
-    <!-- 3. MONATSÜBERSICHT MIT WOCHENTAGEN & DATUM -->
+    <!-- 3. MONATSÜBERSICHT MIT KOMPAKT-VORSCHAU (+ X WEITERE) -->
     <div id="view-monat" class="card hidden" style="background:rgba(8,29,44,0.88); border-color:rgba(45,212,191,0.28);">
       <h2 id="month-title" style="color:#ccfbf1; margin-bottom:16px;">Monatsübersicht</h2>
       <div class="month-grid" id="month-list"></div>
@@ -72,6 +79,8 @@
   </div>
 
   <script>
+    let allEvents = [];
+
     function setRange(r) {
       ['tag','woche','monat','jahr'].forEach(x => {
         document.getElementById('view-' + x).classList.add('hidden');
@@ -81,36 +90,41 @@
       document.getElementById('btn-' + r).classList.add('active');
     }
 
-    function initCalendar() {
-      const now = new Date();
-      const opts = { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' };
-      document.getElementById('day-title').innerText = "Tagesübersicht – " + now.toLocaleDateString('de-DE', opts);
-      document.getElementById('month-title').innerText = "Monatsübersicht – " + now.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
-      document.getElementById('year-title').innerText = "Jahresübersicht – " + now.getFullYear();
-
-      const dl = JSON.parse(localStorage.getItem('boss_dl_db'))?.termine || [
-        { zeit: "14:00 Uhr", kunde: "Frau Müller", leistung: "Haarschnitt und Farbe (85 €)" }
-      ];
-      const lehrer = JSON.parse(localStorage.getItem('boss_teacher_db'))?.stunden || [
-        { zeit: "16:00 Uhr", name: "Max", thema: "Mathematik – Bruchrechnung" },
-        { zeit: "19:00 Uhr", name: "Ensemble / Orchester", thema: "Gesamtprobe" }
-      ];
-
-      const alle = [
-        ...dl.map(t => ({ zeit: t.zeit, titel: t.kunde + " – " + t.leistung, link: "bueroass.html", tagIndex: 0 })),
-        ...lehrer.map((s, idx) => ({ zeit: s.zeit, titel: s.name + " – " + s.thema, link: "lehrer.html", tagIndex: idx + 1 }))
-      ];
-
-      // 1. Tagesübersicht
-      document.getElementById('day-list').innerHTML = alle.map(a => `
+    function openDayView(dateLabel, eventsForDay) {
+      document.getElementById('day-title').innerText = "Tagesübersicht – " + dateLabel;
+      const list = eventsForDay && eventsForDay.length ? eventsForDay : allEvents;
+      document.getElementById('day-list').innerHTML = list.map(a => `
         <a href="${a.link}" class="termin-link">
           <div><strong style="color:#5eead4;">🕒 ${a.zeit}</strong> • <strong>${a.titel}</strong></div>
           <span style="color:#5eead4; font-weight:700;">Detailseite →</span>
         </a>`).join('');
+      setRange('tag');
+    }
 
-      // 2. Wochenübersicht (Montag links bis Sonntag rechts mit genauem Datum)
+    function initCalendar() {
+      const now = new Date();
+      const opts = { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' };
+      document.getElementById('month-title').innerText = "Monatsübersicht – " + now.toLocaleDateString('de-DE', { month: 'long', year: 'numeric' });
+      document.getElementById('year-title').innerText = "Jahresübersicht – " + now.getFullYear();
+
+      const dl = JSON.parse(localStorage.getItem('boss_dl_db'))?.termine || [
+        { zeit: "14:00 Uhr", kunde: "Frau Müller", leistung: "Haarschnitt & Farbe (85 €)" }
+      ];
+      const lehrer = JSON.parse(localStorage.getItem('boss_teacher_db'))?.stunden || [
+        { zeit: "16:00 Uhr", name: "Max", thema: "Bruchrechnung" },
+        { zeit: "19:00 Uhr", name: "Orchester", thema: "Gesamtprobe" }
+      ];
+
+      allEvents = [
+        ...dl.map(t => ({ zeit: t.zeit, titel: t.kunde + " – " + t.leistung, link: "bueroass.html", tagIndex: 0 })),
+        ...lehrer.map((s, idx) => ({ zeit: s.zeit, titel: s.name + " – " + s.thema, link: "lehrer.html", tagIndex: idx + 1 }))
+      ];
+
+      openDayView(now.toLocaleDateString('de-DE', opts), allEvents);
+
+      // 2. Wochenübersicht (Mo-So in einer Reihe ohne Scrollen am PC)
       const wochentage = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"];
-      const dayOfWeek = (now.getDay() + 6) % 7; // Mo = 0, So = 6
+      const dayOfWeek = (now.getDay() + 6) % 7;
       const monday = new Date(now);
       monday.setDate(now.getDate() - dayOfWeek);
 
@@ -119,16 +133,16 @@
         const d = new Date(monday);
         d.setDate(monday.getDate() + i);
         const dateStr = d.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' });
-        const dayEvents = alle.filter(a => (a.tagIndex % 7) === i);
+        const dayEvents = allEvents.filter(a => (a.tagIndex % 7) === i);
         weekHTML += `<div class="day-box">
           <div style="color:#5eead4; font-weight:700;">${wochentage[i]}</div>
-          <div style="color:#94a3b8; font-size:0.85rem !important; margin-bottom:8px;">${dateStr}</div>
-          ${dayEvents.map(ev => `<a href="${ev.link}" class="mini-termin">🕒 ${ev.zeit}<br/><strong>${ev.titel}</strong></a>`).join('')}
+          <div style="color:#94a3b8; font-size:0.8rem !important; margin-bottom:8px;">${dateStr}</div>
+          ${dayEvents.map(ev => `<a href="${ev.link}" class="mini-termin" title="${ev.zeit} ${ev.titel}">🕒 ${ev.zeit} ${ev.titel}</a>`).join('')}
         </div>`;
       }
       document.getElementById('week-list').innerHTML = weekHTML;
 
-      // 3. Monatsübersicht mit Wochentagen (Mo-So) und Datum
+      // 3. Monatsübersicht: Maximal 2 Einträge sichtbar, ab 3+ Einträgen kompakter "+ X weitere"-Button
       const shortDays = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
       let monthHTML = shortDays.map(sd => `<div class="month-head">${sd}</div>`).join('');
       const year = now.getFullYear(), month = now.getMonth();
@@ -136,16 +150,24 @@
       const daysInMonth = new Date(year, month + 1, 0).getDate();
 
       for (let empty = 0; empty < firstDay; empty++) {
-        monthHTML += `<div class="month-cell" style="opacity:0.3;"></div>`;
+        monthHTML += `<div class="month-cell" style="opacity:0.25;"></div>`;
       }
       for (let day = 1; day <= daysInMonth; day++) {
         const curDate = new Date(year, month, day);
         const wdName = shortDays[(curDate.getDay() + 6) % 7];
         const fullDate = curDate.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit' });
-        const hasEvent = day === now.getDate() ? alle : (day % 7 === 2 ? [alle[0]] : []);
+        const fullLabel = curDate.toLocaleDateString('de-DE', opts);
+        const dayList = day === now.getDate() ? allEvents : (day % 7 === 2 ? [allEvents] : []);
+        
+        const visibleItems = dayList.slice(0, 2);
+        const hiddenCount = dayList.length - visibleItems.length;
+
         monthHTML += `<div class="month-cell">
-          <strong style="color:#ccfbf1;">${wdName}, ${fullDate}.</strong>
-          ${hasEvent.map(ev => `<a href="${ev.link}" class="mini-termin">${ev.zeit} ${ev.titel}</a>`).join('')}
+          <div>
+            <strong style="color:#ccfbf1;">${wdName}, ${fullDate}.</strong>
+            ${visibleItems.map(ev => `<a href="${ev.link}" class="mini-termin" title="${ev.zeit} ${ev.titel}">${ev.zeit} ${ev.titel}</a>`).join('')}
+          </div>
+          ${hiddenCount > 0 ? `<a href="#" onclick="openDayView('${fullLabel}'); return false;" class="more-badge">+ ${hiddenCount} weitere (Alle ansehen)</a>` : ''}
         </div>`;
       }
       document.getElementById('month-list').innerHTML = monthHTML;
@@ -156,7 +178,7 @@
         <div class="day-box" style="min-height:110px;">
           <strong style="color:#99f6e4;">${m} ${year}</strong>
           <a href="#" onclick="setRange('monat'); return false;" class="mini-termin">
-            ${i === month ? 'Aktueller Monat (' + alle.length + ' Termine)' : 'Monat öffnen →'}
+            ${i === month ? 'Aktueller Monat (' + allEvents.length + ' Termine)' : 'Monat öffnen →'}
           </a>
         </div>`).join('');
     }
