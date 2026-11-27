@@ -88,4 +88,44 @@ body.subpage-theme::before {
     opacity: 0.75;
   }
 }
+/* Größere, gut lesbare Schriften für PC & Handy */
+html {
+  font-size: 18px;
+}
+
+body {
+  font-size: 1rem !important;
+  line-height: 1.6 !important;
+}
+
+h1 { font-size: 2rem !important; }
+h2 { font-size: 1.45rem !important; }
+h3 { font-size: 1.2rem !important; }
+
+p, span, div, label, input, button, a {
+  font-size: max(1rem, 16px) !important;
+}
+
+.box-label, .badge, .btn-nav, .sky-btn {
+  font-size: 0.88rem !important;
+}
+
+.menu-title {
+  font-size: 1.35rem !important;
+}
+
+.menu-desc {
+  font-size: 1rem !important;
+  line-height: 1.55 !important;
+}
+
+/* Auf dem Handy noch etwas komfortabler */
+@media (max-width: 900px) {
+  html {
+    font-size: 19px;
+  }
+  .btn, .tab, .mode-btn {
+    padding: 14px 18px !important;
+  }
+}
 
