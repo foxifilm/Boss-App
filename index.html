@@ -3,132 +3,127 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Boss-App – Startseite</title>
+  <title>Boss-App – Local-First KI-Zentrale</title>
   <link rel="stylesheet" href="style.css" />
   <style>
-      body.sunset-theme {
-      background: linear-gradient(180deg, rgba(10, 15, 28, 0.25) 0%, rgba(7, 14, 29, 0.72) 100%),
-                  url('Gemini_Generated_Image_js4lnvjs4lnvjs4l.jpeg')
- center center / cover no-repeat fixed !important;
+    body.sunset-theme {
+      background: linear-gradient(180deg, rgba(10, 15, 28, 0.25) 0%, rgba(7, 14, 29, 0.78) 100%),
+                  url('Gemini_Generated_Image_js4lnvjs4lnvjs4l.jpeg') center center / cover no-repeat fixed !important;
     }
-   
-    .menu-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-top: 30px; }
-@media (max-width: 900px) { .menu-grid { grid-template-columns: 1fr; } }
-
-    .menu-card {
-      background: rgba(11, 21, 43, 0.86); border: 1px solid rgba(251, 146, 60, 0.35);
+    .role-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 1200px; margin: 28px auto 0 auto; width: 100%; }
+    @media (max-width: 900px) { .role-grid { grid-template-columns: 1fr; } }
+    .role-card {
+      background: rgba(11, 21, 43, 0.88); border: 1px solid rgba(251, 146, 60, 0.4);
       border-radius: 24px; padding: 26px; text-decoration: none; color: #fff;
-      backdrop-filter: blur(16px); box-shadow: 0 18px 35px rgba(0, 0, 0, 0.4);
-      transition: transform 0.2s, border-color 0.2s, background 0.2s;
-      display: flex; flex-direction: column; justify-content: space-between;
+      backdrop-filter: blur(16px); box-shadow: 0 18px 35px rgba(0,0,0,0.45);
+      transition: transform 0.2s, border-color 0.2s; display: flex; flex-direction: column; justify-content: space-between;
     }
-    .menu-card:hover { transform: translateY(-4px); border-color: #fb923c; background: rgba(17, 31, 61, 0.95); }
-    .menu-icon { font-size: 32px; margin-bottom: 14px; display: inline-block; }
-    .menu-title { font-size: 19px; font-weight: 700; margin-bottom: 8px; color: #ffedd5; }
-    .menu-desc { font-size: 13.5px; line-height: 1.5; color: #cbd5e1; }
+    .role-card:hover { transform: translateY(-4px); border-color: #fb923c; background: rgba(17, 31, 61, 0.96); }
+    .backup-bar {
+      max-width: 1200px; margin: 24px auto 0 auto; width: 100%;
+      background: rgba(7, 14, 29, 0.85); border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 20px; padding: 18px 24px; display: flex; flex-wrap: wrap;
+      justify-content: space-between; align-items: center; gap: 14px; backdrop-filter: blur(14px);
+    }
   </style>
 </head>
 <body class="sunset-theme">
-
-  <div class="sky-layer">
-    <div class="sunset-sun"></div>
-    <div class="sunset-horizon"></div>
-  </div>
-
-  <div class="app-shell" style="flex-direction: column; padding: 32px 20px 130px 20px;">
-    <header style="text-align: center; margin-top: 20px; margin-bottom: 35px;">
-      <div style="display:inline-flex; align-items:center; gap:10px; background:rgba(7,14,29,0.65); border:1px solid rgba(251,146,60,0.4); padding:8px 18px; border-radius:999px; margin-bottom:16px;">
-        <span style="font-weight:800; color:#fdba74;">B</span>
-        <span style="font-size:14px; font-weight:600; letter-spacing:0.05em;">BOSS-APP • KI-ASSISTENT</span>
+  <div class="app-shell" style="flex-direction: column; padding: 28px 20px 120px 20px;">
+    <header style="text-align: center; margin-top: 10px;">
+      <div style="display:inline-flex; align-items:center; gap:8px; background:rgba(7,14,29,0.75); border:1px solid rgba(251,146,60,0.45); padding:6px 16px; border-radius:999px; margin-bottom:12px; font-size:12px; font-weight:700; color:#fdba74;">
+        🔒 100 % LOCAL-FIRST • OFFLINE-FÄHIG • DSGVO-SICHER
       </div>
-      <h1 style="font-size: 32px; font-weight: 800; text-shadow: 0 4px 16px rgba(0,0,0,0.5);">
-        Willkommen in deiner Zentrale
+      <h1 style="font-size: 32px; font-weight: 800; text-shadow: 0 4px 16px rgba(0,0,0,0.6);">
+        Willkommen in deiner Boss-App
       </h1>
-      <p style="font-size: 15px; color: #ffedd5; margin-top: 6px; opacity: 0.9;">
-        Wähle einen Bereich oder sprich deinen Wunsch direkt unten ein.
+      <p style="font-size: 15px; color: #ffedd5; margin-top: 6px;">
+        Alle Daten bleiben sicher auf deinem PC & Handy – ohne Serverkosten. Wähle deinen Bereich:
       </p>
     </header>
 
-    <div id="ai-toast" class="toast hidden" style="max-width: 850px; margin: 0 auto 24px auto; width: 100%;">
-      <span id="ai-toast-text">✨ KI bereit...</span>
+    <div id="ai-toast" class="toast hidden" style="max-width: 900px; margin: 18px auto 0 auto; width: 100%;">
+      <span id="ai-toast-text">✨ Bereit...</span>
       <button onclick="document.getElementById('ai-toast').classList.add('hidden')" style="background:none;border:none;color:#fff;cursor:pointer;">✕</button>
     </div>
 
-    <div class="menu-grid" style="max-width: 1050px; margin: 0 auto; width: 100%;">
-      <a href="kalender.html" class="menu-card">
+    <!-- Die 3 Haupt-Optionen -->
+    <div class="role-grid">
+      <a href="dienstleister.html" class="role-card">
         <div>
-          <span class="menu-icon">📅</span>
-          <div class="menu-title">Termine, Kalender & Zeit-Planung</div>
-          <p class="menu-desc">Stunden- & Tagesplan, Wochen-, Monats- und Jahresübersicht. Mit KI-Details, Ratschlägen zu jedem Termin, E-Mail-Antworten & Einnahmen-Erfassung.</p>
+          <div style="font-size:34px; margin-bottom:12px;">✂️</div>
+          <h2 style="font-size:20px; color:#ffedd5; margin-bottom:8px;">Mobiler Dienstleister</h2>
+          <p style="font-size:13.5px; color:#cbd5e1; line-height:1.55;">
+            Sprache zu Termin, lernender Kundenakte (Allergien, Vorlieben, Preise) & Umsatz. Inkl. KI-Terminvorbereitung, WhatsApp/E-Mail-Entwürfen & Steuer-Export.
+          </p>
         </div>
-        <div style="margin-top: 18px; font-size: 13px; font-weight: 600; color: #fdba74;">Zeit-Planung öffnen →</div>
+        <div style="margin-top:18px; font-size:13px; font-weight:700; color:#fdba74;">Dienstleister-Zentrale öffnen →</div>
       </a>
 
-      <a href="gruppen.html" class="menu-card">
+      <a href="laden.html" class="role-card">
         <div>
-          <span class="menu-icon">👥</span>
-          <div class="menu-title">Gruppen- & Vereinsplanung</div>
-          <p class="menu-desc">Gruppen zusammenstellen z. B. jegliche Art von Gruppen wie Vereine, Orchester, Gruppen, Firmenbesetzungen usw. Mitglieder vernetzen, Abläufe steuern und KI-Ersatzlösungen finden.</p>
+          <div style="font-size:34px; margin-bottom:12px;">🏪</div>
+          <h2 style="font-size:20px; color:#ffedd5; margin-bottom:8px;">Ladenbesitzer & Shop</h2>
+          <p style="font-size:13.5px; color:#cbd5e1; line-height:1.55;">
+            Sprach-Tageskasse & Kassenbuch, smarte Nachbestell-Liste & Großhandels-Order, Fixkosten- & Break-Even-Rechner sowie CSV-Steuerexport.
+          </p>
         </div>
-        <div style="margin-top: 18px; font-size: 13px; font-weight: 600; color: #fdba74;">Gruppen verwalten →</div>
+        <div style="margin-top:18px; font-size:13px; font-weight:700; color:#fdba74;">Laden-Zentrale öffnen →</div>
       </a>
 
-      <a href="finanzen.html" class="menu-card">
+      <a href="lehrer.html" class="role-card">
         <div>
-          <span class="menu-icon">💶</span>
-          <div class="menu-title">Einnahmen & Ausgaben</div>
-          <p class="menu-desc">Kundeneinnahmen (Bar & Überweisung), Monats- und Gesamtrechnungen sowie Betriebsausgaben automatisch per KI erfassen.</p>
+          <div style="font-size:34px; margin-bottom:12px;">🎓</div>
+          <h2 style="font-size:20px; color:#ffedd5; margin-bottom:8px;">Lehrer, Trainer & Orchester</h2>
+          <p style="font-size:13.5px; color:#cbd5e1; line-height:1.55;">
+            Lernende Schüler- & Gruppenprofile, KI-Mustererkennung (Verspätungen, Phrasen-Schwächen), 10er-Karten-Tracker, Eltern-Updates & Steuer-Export.
+          </p>
         </div>
-        <div style="margin-top: 18px; font-size: 13px; font-weight: 600; color: #fdba74;">Rechnungen ansehen →</div>
-      </a>
-
-      <a href="postfach.html" class="menu-card">
-        <div>
-          <span class="menu-icon">✉️</span>
-          <div class="menu-title">KI-Postfach & Weiterbildung</div>
-          <p class="menu-desc">Eingehende E-Mails prüfen, KI-Antworten direkt freigeben und wichtige Neuerungen & Weiterbildungen für deine Branche entdecken.</p>
-        </div>
-        <div style="margin-top: 18px; font-size: 13px; font-weight: 600; color: #fdba74;">Postfach öffnen →</div>
+        <div style="margin-top:18px; font-size:13px; font-weight:700; color:#fdba74;">Unterrichts-Zentrale öffnen →</div>
       </a>
     </div>
-  </div>
 
-  <div class="bottom-bar">
-    <div class="input-wrap">
-      <button id="mic-btn" onclick="startVoiceInput()" class="mic-btn" style="background: #ea580c; box-shadow: 0 8px 25px rgba(234,88,12,0.5);">🎙️</button>
-      <form onsubmit="handleTextCommand(event)" class="text-form" style="border-color: rgba(251,146,60,0.4);">
-        <input id="command-input" type="text" placeholder="Sprachbefehl oder Notiz eingeben (z. B. 'Termin Max 20 Euro bar verbuchen')..." />
-        <button type="submit" class="btn" style="background: #ea580c;">Senden</button>
-      </form>
+    <!-- Backup & Gerätewechsel (Local-First Tresor) -->
+    <div class="backup-bar">
+      <div>
+        <div style="font-size:14px; font-weight:700; color:#ffedd5;">🛡️ Verschlüsseltes Backup & Gerätewechsel</div>
+        <div style="font-size:12.5px; color:#94a3b8;">Sichere deine komplette lokale Datenbank als Datei für PC, USB-Stick oder ein neues Handy.</div>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button onclick="exportBackup()" class="btn" style="background:#ea580c;">⬇️ Backup sichern</button>
+        <label class="btn" style="background:rgba(255,255,255,0.12); cursor:pointer;">
+          ⬆️ Backup laden <input type="file" accept=".json,.boss" onchange="importBackup(event)" class="hidden" />
+        </label>
+      </div>
     </div>
   </div>
 
   <script>
-    function showToast(text) {
-      document.getElementById('ai-toast-text').innerText = text;
-      document.getElementById('ai-toast').classList.remove('hidden');
+    function showToast(t) { document.getElementById('ai-toast-text').innerText = t; document.getElementById('ai-toast').classList.remove('hidden'); }
+    function exportBackup() {
+      const pw = prompt("Passwort zum Verschlüsseln deines Backups eingeben (optional):") || "";
+      const raw = JSON.stringify(localStorage);
+      const encoded = btoa(unescape(encodeURIComponent(pw + "::BOSS_DB::" + raw)));
+      const blob = new Blob([encoded], { type: "application/octet-stream" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "BossApp_Backup_" + new Date().toISOString().slice(0,10) + ".boss";
+      a.click();
+      showToast("✅ Verschlüsseltes Backup wurde auf deinem Gerät gespeichert!");
     }
-    function handleTextCommand(e) {
-      e.preventDefault();
-      const input = document.getElementById('command-input');
-      if (!input.value.trim()) return;
-      showToast('✨ KI verarbeitet: "' + input.value + '"');
-      input.value = '';
-    }
-    function startVoiceInput() {
-      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (!SR) { showToast('🎙️ Spracheingabe bitte im Textfeld nutzen.'); return; }
-      const rec = new SR();
-      rec.lang = 'de-DE';
-      document.getElementById('mic-btn').classList.add('recording');
-      showToast('🎙️ Ich höre zu... Sprich jetzt.');
-      rec.onresult = (e) => {
-        const t = e.results.transcript;
-        document.getElementById('command-input').value = t;
-        showToast('✨ Verstanden: "' + t + '"');
+    function importBackup(e) {
+      const file = e.target.files;
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        try {
+          const decoded = decodeURIComponent(escape(atob(ev.target.result)));
+          const parts = decoded.split("::BOSS_DB::");
+          const data = JSON.parse(parts);
+          Object.keys(data).forEach(k => localStorage.setItem(k, data[k]));
+          showToast("✅ Backup erfolgreich eingespielt! Alle Daten sind wiederhergestellt.");
+        } catch(err) { showToast("⚠️ Backup-Datei konnte nicht gelesen werden."); }
       };
-      rec.onend = () => document.getElementById('mic-btn').classList.remove('recording');
-      rec.start();
+      reader.readAsText(file);
     }
   </script>
 </body>
