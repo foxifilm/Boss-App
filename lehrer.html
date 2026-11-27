@@ -70,3 +70,169 @@
       <div id="list-l-fin"></div>
     </div>
   </div>
+  <div class="bottom-bar">
+    <div class="input-wrap">
+      <button id="mic-btn" onclick="startVoice()" class="mic-btn" style="background:#0d9488;">🎙️</button>
+      <form onsubmit="processTeacherSpeech(event)" class="text-form" style="border-color: rgba(45,212,191,0.35);">
+        <input id="cmd-input" type="text" placeholder="Sprechen: 'Max hat heute Probleme mit Bruchrechnung gehabt, nächste Woche Dienstag 14 Uhr wiederholen'..." />
+        <button type="submit" class="btn" style="background:#0d9488;">KI-Notiz</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const defaultTeacherDB = {
+      stunden: [
+        { id: 1, zeit: "Dienstag, 14:00 Uhr", name: "Max", thema: "Mathematik – Bruchrechnung", letztesMal: "Probleme beim Kürzen und Hauptnenner finden.", kiVorschlag: "Einstieg mit anschaulichen Pizzastück-Aufgaben, danach 3 einfache Übungen zum Hauptnenner festigen.", hausaufgabe: "Arbeitsblatt S. 14 Nr. 1–4" },
+        { id: 2, zeit: "Mittwoch, 19:00 Uhr", name: "Ensemble / Orchester", thema: "Gesamtprobe – Festival-Programm", letztesMal: "Satz 2 noch unsauber; Thomas B. fehlte (2-Wochen-Rhythmus).", kiVorschlag: "Erstes Grundprinzip heute: 15 Min. gemeinsame Phrasenübung für das gesamte Orchester, bevor das neue Stück begonnen wird.", hausaufgabe: "Takte 32–64 langsam mit Metronom üben" }
+      ],
+      schueler: {
+        "Max": { staerken: "Kopfrechnen, hohe Motivation", schwaechen: "Bruchrechnung (Hauptnenner)", paketVerbraucht: 7, paketGesamt: 10, stundenpreis: 35, historie: ["Bruchrechnung Grundlagen", "Dezimalzahlen"] },
+        "Fabian K.": { staerken: "Rhythmusgefühl", schwaechen: "Kommt seit 6 Wochen regelmäßig zu spät", paketVerbraucht: 10, paketGesamt: 10, stundenpreis: 35, historie: ["Tonleiter-Übungen (10er-Paket voll – Abrechnung fällig!)"] }
+      },
+      finanzen: [
+        { datum: "27.11.2026", text: "10er-Paket Honorar (Max)", betrag: 350.00 },
+        { datum: "22.11.2026", text: "Unterrichtsmaterial & Kopien", betrag: -28.90 }
+      ]
+    };
+
+    function getTDB() { return JSON.parse(localStorage.getItem('boss_teacher_db')) || defaultTeacherDB; }
+    function saveTDB(db) { localStorage.setItem('boss_teacher_db', JSON.stringify(db)); renderTeacher(); }
+
+    function showTab(t) {
+      ['kalender','schueler','finanzen'].forEach(x => {
+        document.getElementById('sec-' + x).classList.add('hidden');
+        document.getElementById('t-' + x).classList.remove('active');
+      });
+      document.getElementById('sec-' + t).classList.remove('hidden');
+      document.getElementById('t-' + t).classList.add('active');
+    }
+
+    function processTeacherSpeech(e) {
+      e.preventDefault();
+      const raw = document.getElementById('cmd-input').value.trim();
+      if (!raw) return;
+      const db = getTDB();
+
+      const nameMatch = raw.match(/^([A-ZÄÖÜ][a-zäöüß]+)/);
+      const schuelerName = nameMatch ? nameMatch[1] : "Schüler / Gruppe";
+      const timeMatch = raw.match(/(nächste\s+Woche\s+[A-Za-zäöüß]+\s+\d{1,2}\s*Uhr|[A-Za-zäöüß]+\s+\d{1,2}\s*Uhr|\d{1,2}:\d{2}\s*Uhr)/i);
+      const zeit = timeMatch ? timeMatch[0] : "Nächster Termin";
+
+      db.stunden.unshift({
+        id: Date.now(), zeit: zeit, name: schuelerName, thema: "Wiederholung & Vertiefung",
+        letztesMal: raw,
+        kiVorschlag: "Gezielte Wiederholung der genannten Schwierigkeit mit Schritt-für-Schritt-Übung starten.",
+        hausaufgabe: "Übung aus der heutigen Stunde festigen"
+      });
+
+      if (!db.schueler[schuelerName]) {
+        db.schueler[schuelerName] = { staerken: "Wird erfasst", schwaechen: raw, paketVerbraucht: 1, paketGesamt: 10, stundenpreis: 35, historie: [raw] };
+      } else {
+        db.schueler[schuelerName].schwaechen = raw;
+        db.schueler[schuelerName].paketVerbraucht += 1;
+        db.schueler[schuelerName].historie.unshift(raw);
+      }
+
+      saveTDB(db);
+      document.getElementById('cmd-input').value = '';
+      showToast("✅ Schülerakte & Folgetermin (" + zeit + ") für " + schuelerName + " automatisch aktualisiert!");
+    }
+
+    function sendParentUpdate(name, thema, hausaufgabe) {
+      const msg = `Hallo! Kurzes Update zur heutigen Stunde mit ${name}: Thema „${thema}“ erfolgreich geübt. Hausaufgabe: ${hausaufgabe}. Viele Grüße!`;
+      navigator.clipboard?.writeText(msg);
+      showToast("📲 Eltern-/Schüler-Update kopiert (bereit für WhatsApp/E-Mail): „" + msg + "“");
+    }
+
+    function addPaketStunde(name) {
+      const db = getTDB();
+      if (db.schueler[name]) {
+        db.schueler[name].paketVerbraucht += 1;
+        saveTDB(db);
+        showToast("✅ +1 Stunde im Paket von " + name + " verbucht!");
+      }
+    }
+
+    function addLehrerFin() {
+      const n = document.getElementById('l-fin-name').value.trim();
+      const v = parseFloat(document.getElementById('l-fin-val').value);
+      if (!n || isNaN(v)) return;
+      const db = getTDB();
+      db.finanzen.unshift({ datum: new Date().toLocaleDateString('de-DE'), text: n, betrag: v });
+      saveTDB(db);
+      document.getElementById('l-fin-name').value = '';
+      document.getElementById('l-fin-val').value = '';
+      showToast("✅ Verbucht!");
+    }
+
+    function exportLehrerCSV() {
+      const db = getTDB();
+      let csv = "Datum;Beschreibung;Betrag_EUR\n";
+      db.finanzen.forEach(f => { csv += `${f.datum};"${f.text}";${f.betrag.toFixed(2).replace('.', ',')}\n`; });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" }));
+      a.download = "Steuerberater_Unterricht.csv";
+      a.click();
+      showToast("📊 Steuer-CSV exportiert!");
+    }
+
+    function renderTeacher() {
+      const db = getTDB();
+      document.getElementById('list-stunden').innerHTML = db.stunden.map(s => `
+        <div class="item-card">
+          <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+            <strong style="color:#5eead4;">🕒 ${s.zeit} – ${s.name}</strong>
+            <span style="color:#94a3b8;">${s.thema}</span>
+          </div>
+          <p style="color:#e2e8f0; margin:10px 0;"><strong>Letztes Mal:</strong> ${s.letztesMal}</p>
+          <div class="ai-tip">✨ <strong>KI-Vorbereitung:</strong> ${s.kiVorschlag}</div>
+          <div style="margin-top:14px;">
+            <button onclick="sendParentUpdate('${s.name}','${s.thema}','${s.hausaufgabe}')" class="btn" style="background:#0d9488;">📲 Eltern-/Schüler-Update per Klick</button>
+          </div>
+        </div>`).join('');
+
+      document.getElementById('list-schueler').innerHTML = Object.keys(db.schueler).map(k => {
+        const p = db.schueler[k];
+        const offen = p.paketVerbraucht >= p.paketGesamt;
+        return `<div class="item-card">
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <strong>🎓 ${k}</strong>
+            <span class="badge" style="background:${offen ? 'rgba(239,68,68,0.25)' : 'rgba(13,148,136,0.25)'}; border-color:${offen ? '#f87171' : '#2dd4bf'}; color:#fff;">
+              10er-Paket: ${p.paketVerbraucht} / ${p.paketGesamt} Std. ${offen ? '(Abrechnung fällig!)' : ''}
+            </span>
+          </div>
+          <div style="color:#cbd5e1; margin-top:8px;"><strong>Stärken:</strong> ${p.staerken} | <strong style="color:#fde68a;">Fokus / Muster:</strong> ${p.schwaechen}</div>
+          <div style="margin-top:12px;">
+            <button onclick="addPaketStunde('${k}')" class="btn" style="background:rgba(255,255,255,0.12);">+1 Stunde abhaken</button>
+          </div>
+        </div>`;
+      }).join('');
+
+      let ein = 0, aus = 0;
+      document.getElementById('list-l-fin').innerHTML = db.finanzen.map(f => {
+        if (f.betrag >= 0) ein += f.betrag; else aus += Math.abs(f.betrag);
+        return `<div class="item-card" style="display:flex; justify-content:space-between; padding:14px 16px;">
+          <span>${f.datum} • ${f.text}</span>
+          <strong style="color:${f.betrag >= 0 ? '#34d399' : '#f87171'};">${f.betrag >= 0 ? '+' : ''}${f.betrag.toFixed(2)} €</strong>
+        </div>`;
+      }).join('');
+
+      document.getElementById('lehrer-fin-sum').innerHTML = `
+        <div class="inner-box"><div class="box-label">Honorare</div><strong style="color:#34d399;">${ein.toFixed(2)} €</strong></div>
+        <div class="inner-box"><div class="box-label">Ausgaben</div><strong style="color:#f87171;">${aus.toFixed(2)} €</strong></div>
+        <div class="inner-box ai"><div class="box-label">Monatsbilanz</div><strong style="color:#5eead4;">${(ein - aus).toFixed(2)} €</strong></div>`;
+    }
+
+    function showToast(t) { document.getElementById('ai-toast-text').innerText = t; document.getElementById('ai-toast').classList.remove('hidden'); }
+    function startVoice() {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) { showToast('🎙️ Bitte Textfeld nutzen.'); return; }
+      const r = new SR(); r.lang = 'de-DE'; document.getElementById('mic-btn').classList.add('recording'); showToast('🎙️ Ich höre zu...');
+      r.onresult = e => { document.getElementById('cmd-input').value = e.results[0][0].transcript; processTeacherSpeech(new Event('submit')); };
+      r.onend = () => document.getElementById('mic-btn').classList.remove('recording'); r.start();
+    }
+    window.addEventListener('DOMContentLoaded', renderTeacher);
+  </script>
+</body>
+</html>
