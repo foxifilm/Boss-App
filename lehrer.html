@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BüroAss – Lehrer, Trainer & Gruppen</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .top-nav { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+    .btn-nav { background: rgba(255,255,255,0.12); border: 1px solid rgba(45,212,191,0.4); color: #ccfbf1; padding: 10px 16px; border-radius: 12px; text-decoration: none; font-weight: 600; cursor: pointer; }
+    .tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+    .tab { background: rgba(6,24,38,0.88); border: 1px solid rgba(45,212,191,0.3); color: #cbd5e1; padding: 12px 18px; border-radius: 12px; font-weight: 600; cursor: pointer; }
+    .tab.active { background: #0d9488; color: #fff; border-color: #2dd4bf; }
+    .item-card { background: rgba(6,24,38,0.9); border: 1px solid rgba(45,212,191,0.28); border-radius: 16px; padding: 18px; margin-bottom: 14px; }
+    .pattern-alert { background: rgba(245, 158, 11, 0.18); border: 1px solid rgba(251, 191, 36, 0.55); border-radius: 16px; padding: 16px; margin-bottom: 18px; color: #fef3c7; }
+    .ai-tip { background: rgba(13,148,136,0.2); border: 1px solid rgba(45,212,191,0.45); border-radius: 12px; padding: 14px; color: #ccfbf1; margin-top: 12px; }
+    .field { background: rgba(4,18,29,0.95); border: 1px solid rgba(45,212,191,0.35); border-radius: 10px; padding: 12px; color: #fff; width: 100%; margin-bottom: 10px; }
+  </style>
+</head>
+<body class="subpage-theme">
+  <div class="app-shell" style="flex-direction: column; padding: 22px 18px 140px 18px;">
+    <div class="top-nav">
+      <div style="display:flex; gap:10px;">
+        <button onclick="history.back()" class="btn-nav">← Zurück</button>
+        <a href="index.html" class="btn-nav">🏠 Startseite</a>
+      </div>
+      <div style="color: #99f6e4; font-weight: 700;">🎓 BüroAss • Lehrer, Trainer & Gruppen</div>
+    </div>
+
+    <div id="ai-toast" class="toast hidden" style="border-color: #2dd4bf; background: rgba(13,148,136,0.35);">
+      <span id="ai-toast-text">✨ KI bereit...</span>
+      <button onclick="document.getElementById('ai-toast').classList.add('hidden')" style="background:none;border:none;color:#fff;cursor:pointer;">✕</button>
+    </div>
+
+    <!-- Automatische KI-Mustererkennung -->
+    <div class="pattern-alert">
+      <strong>🔍 KI-Mustererkennung (Automatische Langzeit-Analyse):</strong><br/>
+      • <strong>Verspätungs-Muster:</strong> Schüler <em>Fabian K.</em> kommt seit 6 Wochen regelmäßig 10–15 Min. zu spät.<br/>
+      • <strong>Anwesenheits-Muster (Gruppe/Orchester):</strong> <em>Thomas B.</em> fehlt jede zweite Woche bei der Probe.<br/>
+      • <strong>Qualitäts-Muster:</strong> Das Ensemble hat wiederkehrende Probleme bei <strong>Phrasen-Übergängen</strong> → KI-Empfehlung: Phrasenübung ab sofort als erstes Grundprinzip zu Beginn jeder Probe einbauen!
+    </div>
+
+    <div class="tabs">
+      <button onclick="showTab('kalender')" id="t-kalender" class="tab active">📅 Unterrichts- & Probenkalender</button>
+      <button onclick="showTab('schueler')" id="t-schueler" class="tab">🗂️ Lernende Profile & 10er-Pakete</button>
+      <button onclick="showTab('finanzen')" id="t-finanzen" class="tab">💶 Einnahmen, Ausgaben & Steuer-Export</button>
+    </div>
+
+    <div id="sec-kalender" class="card" style="background:rgba(8,29,44,0.88); border-color:rgba(45,212,191,0.28);">
+      <h2 style="color:#ccfbf1; margin-bottom:14px;">Anstehende Stunden, Proben & KI-Vorbereitung</h2>
+      <div id="list-stunden"></div>
+    </div>
+
+    <div id="sec-schueler" class="card hidden" style="background:rgba(8,29,44,0.88); border-color:rgba(45,212,191,0.28);">
+      <h2 style="color:#ccfbf1; margin-bottom:14px;">🗂️ Lernende Profile & Stundenpaket-Tracker (100 % Lokal)</h2>
+      <div id="list-schueler"></div>
+    </div>
+
+    <div id="sec-finanzen" class="card hidden" style="background:rgba(8,29,44,0.88); border-color:rgba(45,212,191,0.28);">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:16px;">
+        <h2 style="color:#ccfbf1;">💶 Honorare, Ausgaben & Steuerberater-Export</h2>
+        <button onclick="exportLehrerCSV()" class="btn" style="background:#059669;">📊 Steuer-Export (CSV / Excel)</button>
+      </div>
+      <div id="lehrer-fin-sum" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); gap:12px; margin-bottom:16px;"></div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px;">
+        <input id="l-fin-name" class="field" style="flex:2; margin:0;" placeholder="Einnahme oder Ausgabe (z. B. 10er Paket Max / Notenhefte)" />
+        <input id="l-fin-val" class="field" style="flex:1; margin:0;" type="number" step="0.01" placeholder="Betrag € (Minus für Ausgabe)" />
+        <button onclick="addLehrerFin()" class="btn" style="background:#0d9488;">+ Verbuchen</button>
+      </div>
+      <div id="list-l-fin"></div>
+    </div>
+  </div>
