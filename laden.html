@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BüroAss – Ladenbesitzer & Kassenbuch</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .top-nav { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 20px; }
+    .btn-nav { background: rgba(255,255,255,0.1); border: 1px solid rgba(45,212,191,0.35); color: #ccfbf1; padding: 9px 15px; border-radius: 12px; text-decoration: none; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+    .tab { background: rgba(6,24,38,0.85); border: 1px solid rgba(45,212,191,0.25); color: #cbd5e1; padding: 10px 16px; border-radius: 12px; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+    .tab.active { background: #0d9488; color: #fff; border-color: #2dd4bf; }
+    .item-card { background: rgba(6,24,38,0.88); border: 1px solid rgba(45,212,191,0.25); border-radius: 16px; padding: 14px 16px; margin-bottom: 10px; }
+    .field { background: rgba(4,18,29,0.9); border: 1px solid rgba(45,212,191,0.3); border-radius: 10px; padding: 10px; color: #fff; font-size: 13px; width: 100%; margin-bottom: 8px; }
+    .progress-bg { width: 100%; height: 14px; background: rgba(255,255,255,0.12); border-radius: 999px; overflow: hidden; margin: 10px 0; }
+    .progress-fill { height: 100%; background: linear-gradient(90deg, #0d9488, #34d399); transition: width 0.5s; }
+  </style>
+</head>
+<body class="subpage-theme">
+  <div class="app-shell" style="flex-direction: column; padding: 22px 18px 130px 18px;">
+    <div class="top-nav">
+      <div style="display:flex; gap:8px;">
+        <button onclick="history.back()" class="btn-nav">← Zurück</button>
+        <a href="index.html" class="btn-nav">🏠 Startseite</a>
+      </div>
+      <div style="font-size: 13px; color: #99f6e4; font-weight: 700;">🏪 BüroAss • Ladenbesitzer & Kassenbuch</div>
+    </div>
+
+    <div id="ai-toast" class="toast hidden" style="border-color: #2dd4bf; background: rgba(13,148,136,0.35);">
+      <span id="ai-toast-text">✨ KI bereit...</span>
+      <button onclick="document.getElementById('ai-toast').classList.add('hidden')" style="background:none;border:none;color:#fff;cursor:pointer;">✕</button>
+    </div>
+
+    <div class="tabs">
+      <button onclick="showTab('kasse')" id="t-kasse" class="tab active">🧾 Tageskasse & Kassenbuch</button>
+      <button onclick="showTab('bestellung')" id="t-bestellung" class="tab">📦 Smarte Nachbestell-Liste</button>
+      <button onclick="showTab('breakeven')" id="t-breakeven" class="tab">📈 Fixkosten & Break-Even</button>
+    </div>
+
+    <!-- TAB 1: TAGESKASSE & KASSENBUCH -->
+    <div id="sec-kasse" class="card" style="background:rgba(8,29,44,0.86); border-color:rgba(45,212,191,0.25);">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+        <h2 style="font-size:18px; color:#ccfbf1;">Tägliches Kassenbuch (Local-First)</h2>
+        <button onclick="exportKasseCSV()" class="btn" style="background:#059669;">📊 Steuerberater-Export (CSV)</button>
+      </div>
+      <p style="font-size:12.5px; color:#5eead4; margin-bottom:14px;">
+        Sprich am Feierabend ein: „Heute 640 Euro Bar-Umsatz, 420 Euro Kartenzahlung, 35 Euro für Putzmittel ausgegeben“
+      </p>
+      <div id="kassen-list"></div>
+    </div>
+
+    <!-- TAB 2: SMARTE NACHBESTELL-LISTE -->
+    <div id="sec-bestellung" class="card hidden" style="background:rgba(8,29,44,0.86); border-color:rgba(45,212,191,0.25);">
+      <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:14px;">
+        <h2 style="font-size:18px; color:#ccfbf1;">📦 Nachbestell-Liste für den Großhandel</h2>
+        <button onclick="orderNow()" class="btn" style="background:#0d9488;">📲 Jetzt beim Großhandel bestellen</button>
+      </div>
+      <div style="display:flex; gap:8px; margin-bottom:14px;">
+        <input id="gh-email" class="field" style="margin:0;" placeholder="Großhandel E-Mail (z. B. bestellung@grosshandel.de)" />
+        <button onclick="saveSupplier()" class="btn" style="background:rgba(255,255,255,0.12); white-space:nowrap;">Speichern</button>
+      </div>
+      <div id="order-list"></div>
+    </div>
+
+    <!-- TAB 3: FIXKOSTEN & BREAK-EVEN -->
+    <div id="sec-breakeven" class="card hidden" style="background:rgba(8,29,44,0.86); border-color:rgba(45,212,191,0.25);">
+      <h2 style="font-size:18px; color:#ccfbf1; margin-bottom:12px;">📈 Fixkosten & Monats-Break-Even</h2>
+      <div id="be-status" class="item-card" style="border-color:#2dd4bf;"></div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; margin:14px 0;">
+        <input id="fix-name" class="field" style="flex:2; margin:0;" placeholder="Fixkosten (z. B. Ladenmiete, Strom, Wareneinkauf)" />
+        <input id="fix-val" class="field" style="flex:1; margin:0;" type="number" step="0.01" placeholder="Betrag €" />
+        <button onclick="addFixkosten()" class="btn" style="background:#dc2626;">+ Fixkosten</button>
+      </div>
+      <div id="fix-list"></div>
+    </div>
+  </div>
+  <div class="bottom-bar">
+    <div class="input-wrap">
+      <button id="mic-btn" onclick="startVoice()" class="mic-btn" style="background:#0d9488;">🎙️</button>
+      <form onsubmit="processShopSpeech(event)" class="text-form" style="border-color: rgba(45,212,191,0.35);">
+        <input id="cmd-input" type="text" placeholder="Sprechen: 'Heute 640 Euro Bar, 420 Euro Karte, 35 Euro Putzmittel' oder 'Kaffeebohnen nachbestellen'..." />
+        <button type="submit" class="btn" style="background:#0d9488;">KI-Buchung</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const defaultShop = {
+      kasse: [
+        { datum: "27.11.2026", art: "Bar-Umsatz", text: "Tagesabschluss Bar", betrag: 640.00 },
+        { datum: "27.11.2026", art: "Kartenzahlung", text: "EC / Kreditkarte Terminal", betrag: 420.00 },
+        { datum: "27.11.2026", art: "Ausgabe", text: "Putzmittel (Beleg)", betrag: -35.00 }
+      ],
+      bestellungen: ["Kaffeebohnen (6x 1kg)", "Kartenzahlungsrollen (10er Pack)"],
+      supplier: "bestellung@grosshandel-shop.de",
+      fixkosten: [
+        { name: "Ladenmiete & Nebenkosten", betrag: 1450.00 },
+        { name: "Strom & Versicherung", betrag: 280.00 },
+        { name: "Wareneinkauf Basis", betrag: 1200.00 }
+      ]
+    };
+
+    function getShop() { return JSON.parse(localStorage.getItem('boss_shop_db')) || defaultShop; }
+    function saveShop(db) { localStorage.setItem('boss_shop_db', JSON.stringify(db)); renderShop(); }
+
+    function showTab(t) {
+      ['kasse','bestellung','breakeven'].forEach(x => {
+        document.getElementById('sec-' + x).classList.add('hidden');
+        document.getElementById('t-' + x).classList.remove('active');
+      });
+      document.getElementById('sec-' + t).classList.remove('hidden');
+      document.getElementById('t-' + t).classList.add('active');
+    }
+
+    function processShopSpeech(e) {
+      e.preventDefault();
+      const raw = document.getElementById('cmd-input').value.trim();
+      if (!raw) return;
+      const db = getShop();
+      const heute = new Date().toLocaleDateString('de-DE');
+
+      if (/nachbestell|bestell|hinzufügen|liste/i.test(raw)) {
+        const cleanItem = raw.replace(/zu den nachbestellungen hinzufügen|nachbestellen|auf die liste/gi, '').trim();
+        db.bestellungen.unshift(cleanItem || raw);
+        saveShop(db);
+        document.getElementById('cmd-input').value = '';
+        showToast("📦 Zur Nachbestell-Liste hinzugefügt: " + (cleanItem || raw));
+        return;
+      }
+
+      const barMatch = raw.match(/(\d+(?:[.,]\d+)?)\s*(?:euro|€)?\s*bar/i);
+      const karteMatch = raw.match(/(\d+(?:[.,]\d+)?)\s*(?:euro|€)?\s*karte/i);
+      const ausMatch = raw.match(/(\d+(?:[.,]\d+)?)\s*(?:euro|€)?\s*(?:für\s+([a-zäöüß\s]+))?\s*ausgegeben/i);
+
+      let gebucht = [];
+      if (barMatch) {
+        const v = parseFloat(barMatch.replace(',', '.'));
+        db.kasse.unshift({ datum: heute, art: "Bar-Umsatz", text: "Tagesabschluss Bar", betrag: v });
+        gebucht.push(v.toFixed(2) + " € Bar");
+      }
+      if (karteMatch) {
+        const v = parseFloat(karteMatch.replace(',', '.'));
+        db.kasse.unshift({ datum: heute, art: "Kartenzahlung", text: "Kartenzahlung", betrag: v });
+        gebucht.push(v.toFixed(2) + " € Karte");
+      }
+      if (ausMatch) {
+        const v = parseFloat(ausMatch.replace(',', '.'));
+        const zweck = ausMatch ? ausMatch.trim() : "Betriebsausgabe";
+        db.kasse.unshift({ datum: heute, art: "Ausgabe", text: zweck, betrag: -Math.abs(v) });
+        gebucht.push("-" + v.toFixed(2) + " € (" + zweck + ")");
+      }
+
+      if (gebucht.length === 0) {
+        const anyPrice = raw.match(/(\d+(?:[.,]\d+)?)/);
+        const v = anyPrice ? parseFloat(anyPrice.replace(',', '.')) : 0;
+        db.kasse.unshift({ datum: heute, art: "Tageseinnahme", text: raw, betrag: v });
+        gebucht.push(raw);
+      }
+
+      saveShop(db);
+      document.getElementById('cmd-input').value = '';
+      showToast("✅ Kassenbuch aktualisiert: " + gebucht.join(" | "));
+    }
+
+    function saveSupplier() {
+      const db = getShop();
+      db.supplier = document.getElementById('gh-email').value.trim();
+      saveShop(db);
+      showToast("✅ Großhandel-Adresse gespeichert!");
+    }
+
+    function orderNow() {
+      const db = getShop();
+      const body = encodeURIComponent("Guten Tag,\n\nbitte liefern Sie uns folgende Artikel aus unserer Nachbestell-Liste:\n- " + db.bestellungen.join("\n- ") + "\n\nVielen Dank!");
+      window.location.href = `mailto:${db.supplier}?subject=Nachbestellung%20BüroAss&body=${body}`;
+      showToast("📲 Bestell-E-Mail an " + db.supplier + " wurde vorbereitet!");
+    }
+
+    function addFixkosten() {
+      const n = document.getElementById('fix-name').value.trim();
+      const v = parseFloat(document.getElementById('fix-val').value);
+      if (!n || isNaN(v)) return;
+      const db = getShop();
+      db.fixkosten.push({ name: n, betrag: v });
+      saveShop(db);
+      document.getElementById('fix-name').value = '';
+      document.getElementById('fix-val').value = '';
+    }
+
+    function exportKasseCSV() {
+      const db = getShop();
+      let csv = "Datum;Kategorie;Belegnotiz;Betrag_EUR\n";
+      db.kasse.forEach(k => { csv += `${k.datum};${k.art};"${k.text}";${k.betrag.toFixed(2).replace('.', ',')}\n`; });
+      const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "Steuerberater_Kassenbuch_" + new Date().toISOString().slice(0,7) + ".csv";
+      a.click();
+      showToast("📊 Kassenbuch für den Steuerberater exportiert!");
+    }
+
+    function renderShop() {
+      const db = getShop();
+      document.getElementById('gh-email').value = db.supplier;
+
+      let umsatz = 0;
+      document.getElementById('kassen-list').innerHTML = db.kasse.map(k => {
+        if (k.betrag > 0) umsatz += k.betrag;
+        return `<div class="item-card" style="display:flex; justify-content:space-between;">
+          <span>${k.datum} • <strong>${k.art}:</strong> ${k.text}</span>
+          <strong style="color:${k.betrag >= 0 ? '#34d399' : '#f87171'};">${k.betrag >= 0 ? '+' : ''}${k.betrag.toFixed(2)} €</strong>
+        </div>`;
+      }).join('');
+
+      document.getElementById('order-list').innerHTML = db.bestellungen.map((b, idx) => `
+        <div class="item-card" style="display:flex; justify-content:space-between; align-items:center;">
+          <span>📦 ${b}</span>
+          <button onclick="removeOrder(${idx})" class="btn" style="background:rgba(255,255,255,0.1); padding:5px 10px; font-size:12px;">Erledigt ✓</button>
+        </div>`).join('');
+
+      const fixSum = db.fixkosten.reduce((acc, f) => acc + f.betrag, 0);
+      const pct = Math.min(100, Math.round((umsatz / (fixSum || 1)) * 100));
+      const diff = umsatz - fixSum;
+
+      document.getElementById('be-status').innerHTML = `
+        <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+          <span>Monats-Umsatz: <strong>${umsatz.toFixed(2)} €</strong> / Fixkosten-Ziel: <strong>${fixSum.toFixed(2)} €</strong></span>
+          <strong style="color:${diff >= 0 ? '#34d399' : '#fde68a'};">${diff >= 0 ? '🎉 IM PLUS (+' + diff.toFixed(2) + ' €)' : 'Noch ' + Math.abs(diff).toFixed(2) + ' € bis Break-Even'}</strong>
+        </div>
+        <div class="progress-bg"><div class="progress-fill" style="width:${pct}%;"></div></div>`;
+
+      document.getElementById('fix-list').innerHTML = db.fixkosten.map(f => `
+        <div class="item-card" style="display:flex; justify-content:space-between;">
+          <span>${f.name}</span><strong>${f.betrag.toFixed(2)} €</strong>
+        </div>`).join('');
+    }
+
+    function removeOrder(idx) { const db = getShop(); db.bestellungen.splice(idx, 1); saveShop(db); }
+    function showToast(t) { document.getElementById('ai-toast-text').innerText = t; document.getElementById('ai-toast').classList.remove('hidden'); }
+    function startVoice() {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) { showToast('🎙️ Spracheingabe bitte im Textfeld nutzen.'); return; }
+      const r = new SR(); r.lang = 'de-DE'; document.getElementById('mic-btn').classList.add('recording'); showToast('🎙️ Ich höre zu...');
+      r.onresult = e => { document.getElementById('cmd-input').value = e.results.transcript; processShopSpeech(); };
+      r.onend = () => document.getElementById('mic-btn').classList.remove('recording'); r.start();
+    }
+    window.addEventListener('DOMContentLoaded', renderShop);
+  </script>
+</body>
+</html>
