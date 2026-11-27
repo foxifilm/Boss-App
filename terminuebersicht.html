@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BüroAss – Terminübersicht</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    .top-nav { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 22px; }
+    .btn-nav { background: rgba(255,255,255,0.12); border: 1px solid rgba(45,212,191,0.4); color: #ccfbf1; padding: 10px 16px; border-radius: 12px; text-decoration: none; font-weight: 600; cursor: pointer; }
+    .time-tabs { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+    @media (max-width: 800px) { .time-tabs { grid-template-columns: 1fr 1fr; } }
+    .t-btn { background: rgba(6,24,38,0.88); border: 1px solid rgba(45,212,191,0.35); color: #cbd5e1; padding: 14px; border-radius: 14px; font-weight: 700; cursor: pointer; text-align: center; transition: 0.2s; }
+    .t-btn.active, .t-btn:hover { background: #0d9488; color: #fff; border-color: #2dd4bf; }
+    .termin-link { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; background: rgba(6,24,38,0.9); border: 1px solid rgba(45,212,191,0.28); border-radius: 16px; padding: 16px 20px; margin-bottom: 12px; text-decoration: none; color: #fff; transition: 0.2s; }
+    .termin-link:hover { border-color: #2dd4bf; background: rgba(13,148,136,0.22); transform: translateX(4px); }
+    .week-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; }
+    .day-box { background: rgba(6,24,38,0.88); border: 1px solid rgba(45,212,191,0.25); border-radius: 16px; padding: 16px; }
+    .mini-termin { display: block; background: rgba(13,148,136,0.22); border: 1px solid rgba(45,212,191,0.4); border-radius: 10px; padding: 10px; margin-top: 8px; color: #ccfbf1; text-decoration: none; }
+    .mini-termin:hover { background: #0d9488; color: #fff; }
+  </style>
+</head>
+<body class="subpage-theme">
+  <div class="app-shell" style="flex-direction: column; padding: 24px 20px 100px 20px;">
+    
+    <div class="top-nav">
+      <div style="display:flex; gap:10px;">
+        <button onclick="history.back()" class="btn-nav">← Zurück</button>
+        <a href="index.html" class="btn-nav">🏠 Startseite</a>
+      </div>
+      <div style="color: #99f6e4; font-weight: 700;">📅 BüroAss • Terminübersicht</div>
+    </div>
+
+    <!-- Die 4 gewünschten Übersichts-Buttons -->
+    <div class="time-tabs">
+      <button onclick="setRange('tag')" id="btn-tag" class="t-btn active">🕒 Tagesübersicht</button>
+      <button onclick="setRange('woche')" id="btn-woche" class="t-btn">📆 Wochenübersicht</button>
+      <button onclick="setRange('monat')" id="btn-monat" class="t-btn">🗓️ Monatsübersicht</button>
+      <button onclick="setRange('jahr')" id="btn-jahr" class="t-btn">📊 Jahresübersicht</button>
+    </div>
+
+    <!-- 1. TAGESÜBERSICHT -->
+    <div id="view-tag" class="card" style="background:rgba(8,29,44,0.88); border-color:rgba(45,212,191,0.28);">
+      <h2 style="color:#ccfbf1; margin-bottom:16px;">Tagesübersicht (Klick auf Termin → Detailseite)</h2>
+      <div id="day-list"></div>
+    </div>
+
+    <!-- 2. WOCHENÜBERSICHT -->
+    <div id="view-woche" class="card hidden" style="background:rgba(8,29,44,0.88); border-color:rgba(45,212,191,0.28);">
+      <h2 style="color:#ccfbf1; margin-bottom:16px;">Wochenübersicht (Mo – So)</h2>
+      <div class="week-grid" id="week-list"></div>
+    </div>
+
+    <!-- 3. MONATSÜBERSICHT -->
+    <div id="view-monat" class="card hidden" style="background:rgba(8,29,44,0.88); border-color:rgba(45,212,191,0.28);">
+      <h2 style="color:#ccfbf1; margin-bottom:16px;">Monatsübersicht – November 2026</h2>
+      <div id="month-list"></div>
+    </div>
+
+    <!-- 4. JAHRESÜBERSICHT -->
+    <div id="view-jahr" class="card hidden" style="background:rgba(8,29,44,0.88); border-color:rgba(45,212,191,0.28);">
+      <h2 style="color:#ccfbf1; margin-bottom:16px;">Jahresübersicht – 2026</h2>
+      <div class="week-grid" id="year-list"></div>
+    </div>
+
+  </div>
+
+  <script>
+    function setRange(r) {
+      ['tag','woche','monat','jahr'].forEach(x => {
+        document.getElementById('view-' + x).classList.add('hidden');
+        document.getElementById('btn-' + x).classList.remove('active');
+      });
+      document.getElementById('view-' + r).classList.remove('hidden');
+      document.getElementById('btn-' + r).classList.add('active');
+    }
+
+    function loadAllAppointments() {
+      const dl = JSON.parse(localStorage.getItem('boss_dl_db'))?.termine || [
+        { zeit: "14:00 Uhr", kunde: "Frau Müller", leistung: "Haarschnitt und Farbe (85 €)", ziel: "bueroass.html" }
+      ];
+      const lehrer = JSON.parse(localStorage.getItem('boss_teacher_db'))?.stunden || [
+        { zeit: "16:00 Uhr", name: "Max", thema: "Mathematik – Bruchrechnung", ziel: "lehrer.html" },
+        { zeit: "19:00 Uhr", name: "Ensemble / Orchester", thema: "Gesamtprobe", ziel: "lehrer.html" }
+      ];
+
+      const alle = [
+        ...dl.map(t => ({ zeit: t.zeit, titel: t.kunde + " – " + t.leistung, link: "bueroass.html", bereich: "Dienstleister" })),
+        ...lehrer.map(s => ({ zeit: s.zeit, titel: s.name + " – " + s.thema, link: "lehrer.html", bereich: "Unterricht / Gruppe" }))
+      ];
+
+      // Tagesübersicht füllen
+      document.getElementById('day-list').innerHTML = alle.map(a => `
+        <a href="${a.link}" class="termin-link">
+          <div>
+            <strong style="color:#5eead4;">🕒 ${a.zeit}</strong> • <strong>${a.titel}</strong>
+            <div style="color:#94a3b8;">Bereich: ${a.bereich}</div>
+          </div>
+          <span style="color:#5eead4; font-weight:700;">Details öffnen →</span>
+        </a>`).join('');
+
+      // Wochenübersicht füllen
+      const tage = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"];
+      document.getElementById('week-list').innerHTML = tage.map((tag, idx) => {
+        const item = alle[idx % alle.length];
+        return `<div class="day-box">
+          <strong style="color:#99f6e4;">${tag}</strong>
+          <a href="${item.link}" class="mini-termin">🕒 ${item.zeit}<br/><strong>${item.titel}</strong></a>
+        </div>`;
+      }).join('');
+
+      // Monatsübersicht füllen
+      document.getElementById('month-list').innerHTML = alle.map(a => `
+        <a href="${a.link}" class="termin-link">
+          <span>🗓️ <strong>${a.zeit}:</strong> ${a.titel} (${a.bereich})</span>
+          <span style="color:#5eead4;">Details →</span>
+        </a>`).join('');
+
+      // Jahresübersicht füllen
+      const monate = ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+      document.getElementById('year-list').innerHTML = monate.map((m, i) => `
+        <div class="day-box">
+          <strong style="color:#99f6e4;">${m} 2026</strong>
+          <a href="terminuebersicht.html" onclick="setRange('monat'); return false;" class="mini-termin">
+            ${i === 10 ? alle.length + ' aktive Termine (Details ansehen)' : 'Monatsplan öffnen'}
+          </a>
+        </div>`).join('');
+    }
+    window.addEventListener('DOMContentLoaded', loadAllAppointments);
+  </script>
+</body>
+</html>
